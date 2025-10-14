@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bruto's Bullshitometer</title>
+</head>
+<style>
+    .content {
+        /* max 22cm width and centre the div but not the text inside */
+        margin: 0 auto;
+        text-align: left;
+        max-width: 22cm;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.5;
+        padding: 20px;
+
+        background-color: #f8f8f8; /* Light grey background to simulate paper */
+        background-image: 
+            linear-gradient(#ffeddb 11.34px, rgb(228, 228, 228) 11.34px); /* Horizontal lines to simulate rows */
+        background-size: 
+            100% 22.68px; /* Size of horizontal lines */
+
+    }
+    
+</style>
+<body>
+    <div class="content">
+    <h1 style="margin-bottom: 0;">Bruto's Bullshitometer</h1>
+    <p style="font-family: 'Courier New', Courier, monospace; font-size: 0.9em; margin-top: 0;">by Crispin Cooper, with some contributions from Razeen Ahamed<br/>music by Oscillicraft & mastered by Stooodio Mastering</p>
+    <h2>FAQ <span style="font-size: 0.5em;"><i>(Figments of my imagination Asking Questions)</i></span></h2>
+
+<h3>I enjoyed that, have you made any other games etc?</h3>
+
+<p>Thanks! Yes: <a href="http://fiftysevendegreesofrad.github.io/quantum/">Quantum Marble Maze</a> and various bits of <a href="https://soundcloud.com/oscillicraft/tracks">music</a>.</p>
+
+<h3>Do you really think that's how people fall for conspiracies? I don't.</h3>
+   
+<p>You are right in many ways of course. Some degree of realism has been sacrificed to make a simple, playable game.</p>
+
+<p>That said, what do you mean by "people"? Everyone is different. There are about eight billion of us and it's plausible that someone has a cognitive model vaguely resembling Bruto's.
+
+<p>"Bold of you to assume there's any logic at all in conspiracy thinking", you might think. But I'll dispute that point. People who fall for conspiracies somehow manage to process incoming information and make sensible decisions all the time, for example, by not stepping out into fast moving traffic. Some have very successful careers. So conspiracy victims are usually fine with rational inference, they just throw in a few errors.
+
+<p>Anyway I wanted to make a game that gets people thinking about how beliefs are formed - so if you're inspired to question this, maybe it's working ;-)</p>
+
+<h3>What is the logic model underlying the game, anyway?</h3>
+
+<p>The likelihood of each belief is computed by logit regression - a very standard way of predicting probabilities, which is traditionally used to do things like figure out your insurance premium. The bullshitometer computes how unlikely all the current beliefs are in combination. It uses a log scale, not a linear one, as that seems to give better gameplay.
+
+<p>The maximum permissible amount of bullshit (least likely permissible combination of beliefs) is computed by a game solver that works out how to make the game <i>just about</i> solvable.
+
+<h3>Don't you realize some conspiracy theories turn out to be true?</h3>
+
+<p>Indeed they do, on occasion. 
+
+<h3>You clearly believe/imply that XYZ is a crazy belief. I think you should reconsider; here are the reasons why you should believe XYZ.</h3>
+
+<p>Firstly, don't assume what I think based on a work of fiction.
+
+<p>Secondly, what I believe about XYZ isn't really relevant. I want to help you think about how people arrive at their beliefs, whatever they are. Actual beliefs included for illustration only.
+
+<h3>How exactly would you define XYZ?</h3>
+
+<p>I suspect you are about to argue in favour of XYZ, for your preferred definition. See above.
+
+<h3>That is without doubt the worst Javascript I've ever seen running.</h3>
+
+<p>Ah yes, but you <i>have</i> seen it running.
+
+What's that, you haven't? In that case we have a slight situation; feel free to <a href="mailto:cooperch@cardiff.ac.uk">file a bug report</a>. Even if we don't have time to fix it, I am grateful when people let me know.</p>
+</div>
+</body>
+</html>
