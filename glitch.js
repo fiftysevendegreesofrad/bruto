@@ -4,11 +4,32 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
 
+// Use full-viewport canvas and layer it above, but attach to #glitch-overlay for CSS blending
+const overlay = document.getElementById('glitch-overlay');
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+// ensure canvas clears to transparent
+renderer.setClearColor(0x000000, 0);
 
-const container = document.getElementById('glitch-overlay');
-const renderer = new THREE.WebGLRenderer({ alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-container.appendChild(renderer.domElement);
+// append to overlay (not body) so multiply blending from CSS applies
+// document.body.appendChild(renderer.domElement);
+overlay.appendChild(renderer.domElement);
+
+// keep canvas over everything, non-interactive, and blended
+renderer.domElement.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:9999;mix-blend-mode:multiply;';
+
+// create composer before any size ops
+const composer = new EffectComposer(renderer);
+
+// window-based sizing
+function resizeToWindow() {
+  const w = Math.max(1, window.innerWidth);
+  const h = Math.max(1, window.innerHeight);
+  renderer.setSize(w, h, false);
+  composer.setSize(w, h);
+}
+resizeToWindow();
+window.addEventListener('resize', resizeToWindow);
 
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -18,7 +39,6 @@ const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
-const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
 const glitchPass = new GlitchPass();
@@ -217,10 +237,38 @@ function animate(time) {
   if (glide < 0.0) glide += 1.0;
   chromaticPass.uniforms.glidePhase.value = glide;
 
+  // restrict draw to header width (full height)
+  applyHeaderScissor();
+
   composer.render();
+
+  // optional: keep scissor on; we only draw this canvas. Disable if you prefer:
+  // renderer.setScissorTest(false);
 
   // update prev flags/time
   prevGlitchEnabled = glitchEnabled;
   prevNow = now;
 }
 animate();
+
+// helper: restrict drawing to header width using scissor + viewport
+function applyHeaderScissor() {
+  const hdr = document.querySelector('.header');
+  if (!hdr) {
+    renderer.setScissorTest(false);
+    return;
+  }
+  const dpr = renderer.getPixelRatio ? renderer.getPixelRatio() : (window.devicePixelRatio || 1);
+  const canvasRect = renderer.domElement.getBoundingClientRect();
+  const headerRect = hdr.getBoundingClientRect();
+
+  // x spans header's left/width; y spans full canvas height
+  const x = Math.floor((headerRect.left - canvasRect.left) * dpr);
+  const y = 0;
+  const w = Math.max(1, Math.floor(headerRect.width * dpr));
+  const h = Math.max(1, Math.floor(canvasRect.height * dpr));
+
+  renderer.setScissorTest(true);
+  renderer.setViewport(x, y, w, h);
+  renderer.setScissor(x, y, w, h);
+}
