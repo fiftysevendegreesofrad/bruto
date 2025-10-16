@@ -37,7 +37,7 @@ function updateNodeDetails(node) {
     let whichSelected = predicateToIndex(node);
     let predicateValue = node.data("predicateValue");
     let color = predicateToTextColour(predicateValue);
-    document.getElementById("currentBelief").innerHTML = "<font color=" + color + "><b>"+CHARACTERNAME+" currently believes: " + options[whichSelected] + "</b></font>";
+    document.getElementById("currentBelief").innerHTML = "<font color=" + color + ' ><b>'+CHARACTERNAME+" currently believes: " + options[whichSelected] + "</b></font>";
 
     //create research button
     if (node.data("researched")==0) {

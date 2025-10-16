@@ -133,8 +133,23 @@
 }
 
 body {
-    font-family: helvetica;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
     overflow: hidden;
+}
+
+h1, h2 {
+    /*font-family: Helvetica, Arial, sans-serif;*/
+}
+
+.text-chroma,
+h1,
+h2,
+.menu-title {
+    text-shadow:
+        2px 0 0 rgba(255, 0, 0, 0.45),   /* red right */
+       -1px 0 0 rgba(0, 255, 255, 0.45), /* cyan left */
+        0 1px 0 rgba(0, 255, 0, 0.35),   /* green down */
+        0 -1px 0 rgba(0, 0, 255, 0.35);  /* blue up */
 }
 
 #cy {
