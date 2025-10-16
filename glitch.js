@@ -163,12 +163,13 @@ composer.addPass(chromaticPass);
 // Set overall glitch intensity here (increase > 1.0 for stronger; < 1.0 for softer)
 chromaticPass.uniforms.glitchIntensity.value = 0.5;
 
-// schedule glitch once per minute, short burst
-const GLITCH_INTERVAL = 2.0; // seconds
-const GLITCH_DURATION = 0.5;  // seconds
+// REMOVE: schedule glitch once per minute, short burst
+// const GLITCH_INTERVAL = 2.0; // seconds
+const GLITCH_DURATION = 0.05;  // seconds
+const LONG_GLITCH_DURATION = 1.0; // seconds (NEW)
 const SCANLINE_CHANGE_INTERVAL = 5; // seconds
 const INTENSITY_PERIOD = 20.0; // seconds (NEW)
-let lastGlitchTime = 0;
+// REMOVE: let lastGlitchTime = 0;
 let lastScanlineChangeTime = 0;
 let started = false;
 let prevNow = 0;
@@ -178,6 +179,28 @@ let glitchBoost = 0.0;
 let prevGlitchEnabled = false;
 let glitchDir = 1.0;
 let glide = 0.0;
+// NEW: pointer-driven glitch deadline
+let glitchEndTime = 0;
+// NEW: long glitch deadline
+let longGlitchUntil = 0;
+
+// NEW: trigger glitch on any mouse/touch press (do not block the event)
+// Ignore while a long glitch is active
+function triggerGlitch() {
+  const now = performance.now() / 1000;
+  if (now < longGlitchUntil) return; // ignore short trigger during long glitch
+  glitchEndTime = now + GLITCH_DURATION;
+}
+window.addEventListener('pointerdown', triggerGlitch, { passive: true });
+
+// NEW: expose a window API to trigger a longer glitch (default 1s). While active,
+// pointer-triggered glitches are ignored.
+window.triggerLongGlitch = function(duration = LONG_GLITCH_DURATION) {
+  const now = performance.now() / 1000;
+  const len = Math.max(0.001, duration);
+  longGlitchUntil = now + len;
+  glitchEndTime = Math.max(glitchEndTime, longGlitchUntil);
+};
 
 function animate(time) {
   requestAnimationFrame(animate);
@@ -187,7 +210,7 @@ function animate(time) {
 
   // initialize baseline on first frame
   if (!started) {
-    lastGlitchTime = now;
+    // lastGlitchTime = now; // <-- removed
     lastScanlineChangeTime = now;
     prevNow = now; // init for stable dt
     started = true;
@@ -195,13 +218,8 @@ function animate(time) {
 
   const dt = now - prevNow;
 
-  // start a burst when interval elapsed
-  if (now - lastGlitchTime >= GLITCH_INTERVAL) {
-    lastGlitchTime = now;
-  }
-
-  // enable glitch only during the short burst window
-  const glitchEnabled = (now - lastGlitchTime) < GLITCH_DURATION;
+  // enable glitch during the active deadline window
+  const glitchEnabled = now < glitchEndTime;
   glitchPass.enabled = glitchEnabled;
 
   // on glitch rising edge, choose a random direction
@@ -231,7 +249,6 @@ function animate(time) {
   }
 
   // NEW: integrate glide so bands ascend/descend depending on glitchDir
-  // speed scales with glitchBoost so it only moves during bursts
   glide += dt * 0.8 * glitchDir * glitchBoost; // 0.8 cycles/sec at full boost
   if (glide > 1.0) glide -= 1.0;
   if (glide < 0.0) glide += 1.0;
@@ -241,9 +258,6 @@ function animate(time) {
   applyHeaderScissor();
 
   composer.render();
-
-  // optional: keep scissor on; we only draw this canvas. Disable if you prefer:
-  // renderer.setScissorTest(false);
 
   // update prev flags/time
   prevGlitchEnabled = glitchEnabled;

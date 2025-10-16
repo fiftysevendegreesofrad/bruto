@@ -106,6 +106,7 @@ function updateNodeDetails(node) {
 
                 button.addEventListener("click", function (evt1) {
                     log("INFYES "+node.id()+"="+buttonPredValue+" "+getDifficulty());
+                    window.triggerLongGlitch();
                     showBullshitometer();
                     node.data("predicateValue", buttonPredValue);
                     updateBelievabilityDisplay(cy);
