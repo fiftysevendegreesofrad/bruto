@@ -32,11 +32,13 @@ const maxSpeed = 10;
 const scanlineShader = {
   uniforms: {
     tDiffuse: { value: null },
-    time: { value: 0 },
+    // replaced time with an accumulated phase to avoid jumps when speed changes
+    phase: { value: 0 },
     speed: { value: maxSpeed/2 },
-    // much smaller intensity for subtle effect
     scanlineIntensity: { value: 0.1 },
-    scanlineCount: { value: 400.0 }
+    scanlineCount: { value: 300.0 },
+    // NEW: phase for the 20s intensity modulation
+    intensityPhase: { value: 0 }
   },
   vertexShader: `
     varying vec2 vUv;
@@ -47,19 +49,23 @@ const scanlineShader = {
   `,
   fragmentShader: `
     uniform sampler2D tDiffuse;
-    uniform float time;
-    uniform float speed;
+    uniform float phase;
     uniform float scanlineIntensity;
     uniform float scanlineCount;
+    uniform float intensityPhase; // NEW
     varying vec2 vUv;
 
     void main() {
       vec4 color = texture2D(tDiffuse, vUv); // base is white
-      // sine in [0..1]
-      float s = 0.5 * (sin(vUv.y * scanlineCount + time * speed) + 1.0);
-      // only darken at the peaks to make very thin lines
-      float mask = s;//smoothstep(0.985, 1.0, s);
-      float mul = 1.0 - scanlineIntensity * mask;
+      // sine in [0..1], driven by accumulated phase so it doesn't jump on speed changes
+      float s = 0.5 * (sin(vUv.y * scanlineCount + phase) + 1.0);
+      float mask = s;
+
+      // 20s sine wave for intensity in [0..1], scaled by scanlineIntensity
+      float intensityWave = 0.5 + 0.5 * sin(intensityPhase);
+      float dynIntensity = scanlineIntensity * intensityWave;
+
+      float mul = 1.0 - dynIntensity * mask;
       color.rgb *= mul;
       gl_FragColor = color;
     }
@@ -71,7 +77,17 @@ composer.addPass(scanlinePass);
 const chromaticShader = {
   uniforms: {
     tDiffuse: { value: null },
-    offset: { value: 0.003 }
+    offset: { value: 0.003 },
+    // NEW: boost and phase for stronger glitch
+    glitchBoost: { value: 0.0 },
+    boostPhase: { value: 0.0 },
+    lineScale: { value: 720.0 }, // number of rows for jitter
+    // NEW: maximum darkening applied during glitch so it’s visible under multiply
+    darkenMax: { value: 0.6 },
+    // NEW: overall glitch intensity (master control)
+    glitchIntensity: { value: 1.0 },
+    // NEW: controls vertical scroll of glitch bands (0..1)
+    glidePhase: { value: 0.0 }
   },
   vertexShader: `
     varying vec2 vUv;
@@ -83,26 +99,65 @@ const chromaticShader = {
   fragmentShader: `
     uniform sampler2D tDiffuse;
     uniform float offset;
+    uniform float glitchBoost;  // 0..1
+    uniform float boostPhase;
+    uniform float lineScale;
+    uniform float darkenMax;
+    uniform float glitchIntensity;
+    uniform float glidePhase;   // NEW
     varying vec2 vUv;
 
+    // hash for per-row randomness
+    float hash(float x) {
+      return fract(sin(x) * 43758.5453123);
+    }
+
     void main() {
-      vec4 r = texture2D(tDiffuse, vUv + vec2(offset, 0.0));
-      vec4 g = texture2D(tDiffuse, vUv);
-      vec4 b = texture2D(tDiffuse, vUv - vec2(offset, 0.0));
-      gl_FragColor = vec4(r.r, g.g, b.b, 1.0);
+      // per-row horizontal jitter
+      // Use glidePhase to scroll which rows are affected; changes direction from JS
+      float row = floor(fract(vUv.y + glidePhase) * lineScale);
+      float rnd = hash(row + floor(boostPhase * 17.0)) - 0.5;
+
+      // scale all glitch components by master intensity
+      float g = clamp(glitchBoost * glitchIntensity, 0.0, 4.0); // allows >1 for extra strong
+
+      vec2 jitter = vec2(rnd, 0.0) * (0.02 * g); // jitter scales with g
+      float dyn = offset * mix(1.0, 6.0, clamp(g, 0.0, 1.0)); // channel sep scales with g (clamped for balance)
+
+      vec4 r = texture2D(tDiffuse, vUv + jitter + vec2(dyn, 0.0));
+      vec4 gch = texture2D(tDiffuse, vUv + jitter * 0.5);
+      vec4 b = texture2D(tDiffuse, vUv + jitter - vec2(dyn, 0.0));
+
+      // independent glitch darkening
+      float band = smoothstep(0.25, 0.5, abs(rnd));
+      float dark = darkenMax * clamp(g, 0.0, 1.5) * band;
+
+      vec3 col = vec3(r.r, gch.g, b.b) * (1.0 - dark);
+      gl_FragColor = vec4(col, 1.0);
     }
   `
 };
 const chromaticPass = new ShaderPass(chromaticShader);
 composer.addPass(chromaticPass);
 
+// Set overall glitch intensity here (increase > 1.0 for stronger; < 1.0 for softer)
+chromaticPass.uniforms.glitchIntensity.value = 0.5;
+
 // schedule glitch once per minute, short burst
-const GLITCH_INTERVAL = 60.0; // seconds
+const GLITCH_INTERVAL = 2.0; // seconds
 const GLITCH_DURATION = 0.5;  // seconds
-const SCANLINE_CHANGE_INTERVAL = 1; // seconds
+const SCANLINE_CHANGE_INTERVAL = 5; // seconds
+const INTENSITY_PERIOD = 20.0; // seconds (NEW)
 let lastGlitchTime = 0;
 let lastScanlineChangeTime = 0;
 let started = false;
+let prevNow = 0;
+// NEW: smooth glitch strength
+let glitchBoost = 0.0;
+// NEW: track direction (+1/-1) and current glide phase [0..1]
+let prevGlitchEnabled = false;
+let glitchDir = 1.0;
+let glide = 0.0;
 
 function animate(time) {
   requestAnimationFrame(animate);
@@ -114,8 +169,11 @@ function animate(time) {
   if (!started) {
     lastGlitchTime = now;
     lastScanlineChangeTime = now;
+    prevNow = now; // init for stable dt
     started = true;
   }
+
+  const dt = now - prevNow;
 
   // start a burst when interval elapsed
   if (now - lastGlitchTime >= GLITCH_INTERVAL) {
@@ -123,7 +181,13 @@ function animate(time) {
   }
 
   // enable glitch only during the short burst window
-  glitchPass.enabled = (now - lastGlitchTime) < GLITCH_DURATION;
+  const glitchEnabled = (now - lastGlitchTime) < GLITCH_DURATION;
+  glitchPass.enabled = glitchEnabled;
+
+  // on glitch rising edge, choose a random direction
+  if (glitchEnabled && !prevGlitchEnabled) {
+    glitchDir = Math.random() < 0.5 ? 1.0 : -1.0;
+  }
 
   // change scanline speed every so often
   if (now - lastScanlineChangeTime >= SCANLINE_CHANGE_INTERVAL) {
@@ -131,9 +195,32 @@ function animate(time) {
     scanlinePass.uniforms.speed.value = Math.random() * maxSpeed - maxSpeed/2;
   }
 
-  // scanlines update every frame (always on)
-  scanlinePass.uniforms.time.value += 0.01;
+  // integrate phase so speed changes don't cause positional jumps
+  scanlinePass.uniforms.phase.value += dt * scanlinePass.uniforms.speed.value;
+
+  // integrate intensity phase for a 20s period
+  scanlinePass.uniforms.intensityPhase.value += dt * (Math.PI * 2.0 / INTENSITY_PERIOD);
+
+  // ramp chromatic glitch boost
+  {
+    const target = glitchEnabled ? 1.0 : 0.0;
+    const ease = Math.min(1.0, dt * 12.0); // ~80ms ease
+    glitchBoost += (target - glitchBoost) * ease;
+    chromaticPass.uniforms.glitchBoost.value = glitchBoost;
+    chromaticPass.uniforms.boostPhase.value += dt * (30.0 + 90.0 * glitchBoost);
+  }
+
+  // NEW: integrate glide so bands ascend/descend depending on glitchDir
+  // speed scales with glitchBoost so it only moves during bursts
+  glide += dt * 0.8 * glitchDir * glitchBoost; // 0.8 cycles/sec at full boost
+  if (glide > 1.0) glide -= 1.0;
+  if (glide < 0.0) glide += 1.0;
+  chromaticPass.uniforms.glidePhase.value = glide;
 
   composer.render();
+
+  // update prev flags/time
+  prevGlitchEnabled = glitchEnabled;
+  prevNow = now;
 }
 animate();
