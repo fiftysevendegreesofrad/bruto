@@ -1,8 +1,31 @@
+import { cy, DEVMODE, allowClickNodes, setAllowClickNodes, cyBaseFontSize, PERMITTEDMINLOGPROB, ALLOWIMPOSSIBLEMOVES } from './sharedState.js';
+import { predicateToIndex, getPredicateFromIndex, getSupportingEdgesCoeffs, getSupportedEdgesCoeffs, updateLogLik, computeBelievabilityFromLogLik, altNetworkLogLik, getNarrative, predicateToOption } from './BeliefGraphUtils.js';
+import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage } from './uiUtils.js';
+import { CHARACTERNAME } from './gamedata.js';
+import { log, getDifficulty } from './main.js';
 
+export function preventCloseWindow() {
+    window.onbeforeunload = function(event) {
+        event.preventDefault();
+        event.returnValue = '';
+        return '';
+    };
+}
 
+export function allowCloseWindow() {
+    window.onbeforeunload = null;
+}
 
-function hideNodeDetailsUpdateGraphDisplay(cy) {
-    hideNodeDisplay(()=>updateGraphDisplay(cy));
+export function hideNodeDisplay(callback) {
+    let nodeDisplay = document.getElementById("node-display");
+    nodeDisplay.addEventListener('transitionend', function() {
+        callback();
+    }, { once: true });
+    nodeDisplay.classList.remove("on-screen");
+}
+
+function hideNodeDetailsUpdateGraphDisplay(cy, cyBaseFontSize) {
+    hideNodeDisplay(()=>updateGraphDisplay(cy, cyBaseFontSize));
 }
 function predicateToTextColour(predicateValue) {
     return predicateValue == 0.5 ? "#111111" : (predicateValue > 0.5 ? "purple" : "blue");
@@ -21,6 +44,9 @@ function displayNodeDetails(node)
     nodeDisplay.classList.add("on-screen");
     setTimeout(showHideAtStartClass, 1000);
 }
+
+export { displayNodeDetails };
+
 function showBullshitometer() {
     document.getElementById("progress-bar-container").classList.remove("hidden");
 }
@@ -29,7 +55,7 @@ function updateNodeDetails(node) {
     
     let closeButton = document.getElementById("node-close");
     closeButton.onclick = function () {
-        hideNodeDetailsUpdateGraphDisplay(cy);
+        hideNodeDetailsUpdateGraphDisplay(cy, cyBaseFontSize);
     }
 
     document.getElementById("topic").innerHTML = node.data("displayLabelSingleLine");
@@ -48,12 +74,12 @@ function updateNodeDetails(node) {
             log("RES "+node.id());
             node.data("researched", 1);
             //iterate through neighbouring nodes
-            for (e of node.incomers())
+            for (let e of node.incomers())
                 e.source().style("display", "element");
             //no longer showing beliefs infleunced by this one, as it's more fun to discover them
-            //for (e of node.outgoers())
+            //for (let e of node.outgoers())
             //    e.target().style("display", "element");
-            hideNodeDetailsUpdateGraphDisplay(cy);
+            hideNodeDetailsUpdateGraphDisplay(cy, cyBaseFontSize);
         });
         document.getElementById("ResearchButton").appendChild(button);
     }
@@ -88,7 +114,7 @@ function updateNodeDetails(node) {
 
             let currentLogLik = updateLogLik(cy);
             let resultingLogLik = altNetworkLogLik(cy, { [node.id()]: buttonPredValue });
-            let resultingBelievability = computeBelievabilityFromLogLik(resultingLogLik);
+            let resultingBelievability = computeBelievabilityFromLogLik(resultingLogLik, PERMITTEDMINLOGPROB);
 
             let possible = resultingLogLik >= PERMITTEDMINLOGPROB;
 
@@ -109,8 +135,8 @@ function updateNodeDetails(node) {
                     window.triggerLongGlitch();
                     showBullshitometer();
                     node.data("predicateValue", buttonPredValue);
-                    updateBelievabilityDisplay(cy);
-                    hideNodeDetailsUpdateGraphDisplay(cy);
+                    updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
+                    hideNodeDetailsUpdateGraphDisplay(cy, cyBaseFontSize);
                     if (isTargetOption)
                     {
                         allowCloseWindow();
@@ -204,10 +230,10 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     hideModal();
     hideNodeDetailsUpdateGraphDisplay(cy);
     
-    allowClickNodes = false;
+    setAllowClickNodes(false);
     let prevPredValue = node.data("predicateValue");
     node.data("predicateValue", hypotheticalPredValue);
-    updateBelievabilityDisplay(cy);
+    updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
     
     const gradient = "repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #fff0f0 10px, #fff0f0 20px)";
     let bodydiv = document.getElementById("body-div");
@@ -235,10 +261,10 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     function closeHypotheticalDisplay() {
         restoreBackground();
         node.data("predicateValue", prevPredValue);
-        updateBelievabilityDisplay(cy);
-        updateGraphDisplay(cy);
+        updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
+        updateGraphDisplay(cy, cyBaseFontSize);
         impossibleInfo.innerHTML = "";
-        allowClickNodes = true;
+        setAllowClickNodes(true);
         normalGraphInfo.style.display = "block";
     }
 
@@ -256,7 +282,7 @@ function displayRelatedBeliefs(node) {
     
     let closeButton = document.createElement("button");
     closeButton.innerHTML = "View Mind Map";
-    closeButton.addEventListener("click", ()=>hideNodeDetailsUpdateGraphDisplay(cy));
+    closeButton.addEventListener("click", ()=>hideNodeDetailsUpdateGraphDisplay(cy, cyBaseFontSize));
     closeButton.className = "align-right";
     researchButton.appendChild(closeButton);
 

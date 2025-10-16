@@ -1,24 +1,24 @@
-cytoscape = require('cytoscape');
-function assert(bool) {
+import cytoscape from 'cytoscape';
+export function assert(bool) {
     if (!bool)
         throw "Assertion failed.";
 }
-function predicateToIndex(node, predicateValue=node.data("predicateValue")) {
+export function predicateToIndex(node, predicateValue=node.data("predicateValue")) {
     return (1 - predicateValue) * (node.data("options").length - 1);
 }
-function predicateToOption(node, predicateValue) {
+export function predicateToOption(node, predicateValue) {
     return node.data("options")[predicateToIndex(node, predicateValue)];
 }
-function getPredicateFromIndex(node, index) {
+export function getPredicateFromIndex(node, index) {
     return 1 - index / (node.options.length - 1);
 }
-function nodeCoeffValue(node) {
+export function nodeCoeffValue(node) {
     return (node.data("predicateValue") * 2 - 1);
 }
-function getSupportedEdgesCoeffs(node)
+export function getSupportedEdgesCoeffs(node)
 {
     let supportedEdgesCoeffs = [];
-    for (e of node.outgoers("edge")) {
+    for (let e of node.outgoers("edge")) {
         let support = nodeCoeffValue(node) * nodeCoeffValue(e.target()) * e.data("weight");
         if (e.data().positiveOnly && nodeCoeffValue(e.source()) < 0)
             support = 0;
@@ -26,10 +26,10 @@ function getSupportedEdgesCoeffs(node)
     }
     return supportedEdgesCoeffs;
 }
-function getSupportingEdgesCoeffs(node)
+export function getSupportingEdgesCoeffs(node)
 {
     let supportingEdgesCoeffs = [];
-    for (e of node.incomers("edge")) {
+    for (let e of node.incomers("edge")) {
         let support = nodeCoeffValue(node) * nodeCoeffValue(e.source()) * e.data("weight");
         if (e.data().positiveOnly && nodeCoeffValue(e.source()) < 0)
             support = 0;
@@ -60,18 +60,16 @@ function updateEdgeColoursGetNodeLogProb(n) {
     //console.log( "  final log odds "+nodeLogOdds+" logProb "+logProb);
     return logProb;
 }
-function computeBelievabilityFromLogLik(logLik) {
-    //You might ask why this is done in log probability space, not probability space.
-    //It just doesn't work so well for a display that way.
+export function computeBelievabilityFromLogLik(logLik, permittedMinLogProb) {
     const MAXLOGPROB = 0;
-    let believability = (logLik - PERMITTEDMINLOGPROB) / (MAXLOGPROB - PERMITTEDMINLOGPROB) * 100;
+    let believability = (logLik - permittedMinLogProb) / (MAXLOGPROB - permittedMinLogProb) * 100;
     
     //round to 1 decimal place
     return believability.toFixed(1);
 }
-function updateLogLik(cy) {
+export function updateLogLik(cy) {
     let logLik = 0;
-    for (n of cy.nodes()) {
+    for (let n of cy.nodes()) {
         let logProb = updateEdgeColoursGetNodeLogProb(n);
         n.data("logprob", logProb);
         let baseLogProb = Math.log(n.data("baseProb"));
@@ -80,30 +78,17 @@ function updateLogLik(cy) {
     }
     return logLik;
 }
-function altNetworkLogLik(cy, nodesToChange) {
+export function altNetworkLogLik(cy, nodesToChange) {
     let eles = cy.elements().map(x => x.json());
     let cyClone = cytoscape({ elements: eles, headless: true });
     for (let [nodeID, nodePredValue] of Object.entries(nodesToChange))
         cyClone.getElementById(nodeID).data("predicateValue", nodePredValue);
     return updateLogLik(cyClone);
 }
-function getNarrative(e,otherPredicate, predicateValue)
+export function getNarrative(e,otherPredicate, predicateValue)
 {
     const narrativeKey = otherPredicate+""+predicateValue;
     let narrative = e.data("narrative")[narrativeKey];
 	if (narrative == undefined) narrative = "";
     return narrative;
 }
-module.exports = {
-    assert,
-    predicateToIndex,
-    predicateToOption,
-    getPredicateFromIndex,
-    nodeCoeffValue,
-    getSupportingEdgesCoeffs,
-    updateEdgeColoursGetNodeLogProb,
-    altNetworkLogLik,
-    updateLogLik,
-    computeBelievabilityFromLogLik,
-    getNarrative
-};

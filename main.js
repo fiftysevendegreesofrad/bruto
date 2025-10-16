@@ -1,28 +1,13 @@
+import { load_elements, permittedMinLogProbs, CHARACTERNAME } from './gamedata.js';
+import './BeliefGraphUtils.js';
+import { displayNodeDetails, hideNodeDisplay } from './BeliefPanel.js';
+import { setCy, DEVMODE, setCyBaseFontSize, cyBaseFontSize, setPERMITTEDMINLOGPROB, PERMITTEDMINLOGPROB, allowClickNodes } from './sharedState.js';
+import { updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal } from './uiUtils.js';
+import { updateLogLik } from './BeliefGraphUtils.js';
 
-let DEVMODE;
-let ALLOWIMPOSSIBLEMOVES;
-let PERMITTEDMINLOGPROB = permittedMinLogProbs["Easy"];
-if (window.location.protocol === 'file:') {
-    // TEST SETTINGS, CAN CHANGE
-    DEVMODE = true;
-    ALLOWIMPOSSIBLEMOVES = false;
-} else {
-    DEVMODE = false; //DEPLOYMENT SETTING, DO NOT CHANGE
-    ALLOWIMPOSSIBLEMOVES = false; //DO NOT CHANGE
-}
+setPERMITTEDMINLOGPROB(permittedMinLogProbs["easy"]);
 let nodeDisplay = DEVMODE ? "element" : "none";
 
-let allowClickNodes = true;
-let cyBaseFontSize;
-
-//get clown images clown1.jpg through to clown7.jpg in an array
-const NUMCLOWNIMAGES = 7;
-let clownImages = [];
-for (let i = 1; i <= NUMCLOWNIMAGES; i++) {
-    let img = new Image();
-    img.src = "img/clown" + i + ".jpg";
-    clownImages.push(img);
-}
 //preload completion image
 let completionImage = new Image();
 completionImage.src = "img/completion_image.webp";
@@ -54,86 +39,13 @@ function log(message) {
     });
 }
 
-function getClownImage(clownImageIndex=NUMCLOWNIMAGES-1, madness=1) {
-    let img = clownImages[clownImageIndex];
-    let madpercent = Math.floor(madness * 100);
-    img.alt = `Picture of ${CHARACTERNAME} looking ${madpercent}% mad`;
-    img.className = "clown-image";
-    return img;
-}
-function updateClownImage(cy) {
-    let totalWackValue = cy.nodes().map(x => (x.data().predicateValue==1 && x.data().wacky)?1:0).reduce((a, b) => a + b);
-    let numWackyNodes = cy.nodes().filter(x => x.data().wacky).size();
-    let madness = totalWackValue / numWackyNodes;
+export { log, getDifficulty };
 
-    //clown image index is 0 if and only if madness is 0, but otherwise scales linearly with madness
-    //clown image index is NUMCLOWNIMAGES-1 if and only if madness is 1
-    let clownImageIndex = Math.floor(madness * (NUMCLOWNIMAGES - 1));
-    if (madness>0 && clownImageIndex<1) clownImageIndex = 1;
-
-    let img = getClownImage(clownImageIndex, madness);
-    document.getElementById("clown-image-container").innerHTML = "";
-    document.getElementById("clown-image-container").appendChild(img);
-}
-
-function updateProgressBar(percentage) {
-    let progressBar = document.getElementById("progress-bar");
-    progressBar.style.width = percentage + "%";
-}
-function updateBelievabilityDisplay(cy) {
-    let logLik = updateLogLik(cy);
-    let believability = computeBelievabilityFromLogLik(logLik);
-    let bullshit = 100 - believability;
-    let bullshitText = bullshit.toFixed(1) + "%";
-    if (bullshit > 100)
-        bullshitText = "OVERLOAD (" + bullshitText + ")";
-    document.getElementById("moving-text").textContent = bullshitText;
-    updateProgressBar(Math.min(bullshit, 100));
-    if (DEVMODE)
-        document.getElementById("moving-text").textContent += " " + logLik.toFixed(2);
-    cy.resize();
-}
-function hideNodeDisplay(callback) {
-    let nodeDisplay = document.getElementById("node-display");
-    nodeDisplay.addEventListener('transitionend', function() {
-        callback();
-    }, { once: true });
-    nodeDisplay.classList.remove("on-screen");
-}
-function hideModal() {
-    let modal = document.getElementById("myModal");
-    modal.style.display = "none";
-}
-function showModal(content,canDismiss=true) {
-    let modal = document.getElementById("myModal");
-    let span = document.getElementById("modal-close");
-    modal.style.display = "block";
-    if (canDismiss)
-    {
-        span.onclick = function () {
-            hideModal();
-        }
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                hideModal();
-            }
-        }
-        span.style.display = "block";
-    }
-    else
-    {
-        span.style.display = "none";
-        span.onclick = function(){};
-        window.onclick = function(){};
-    }
-    let modalMessage = document.getElementById("modal-message");
-    modalMessage.innerHTML = "";
-    modalMessage.appendChild(content);
-}
 function showMainMenu() {
     let menu = document.getElementById("main-menu");
     menu.style.display = "block";
 }
+
 let audio = DEVMODE?null:new Audio("bruto.m4a");
 if (audio)
 {
@@ -146,23 +58,21 @@ function startOrResumeMusic() {
 function stopMusic() {
     if (!DEVMODE) audio.pause();
 }
-function getDifficulty()
-{
+
+function getDifficulty() {
     return document.querySelector('input[name="difficulty"]:checked').value;
 }
-function setPermittedMinLogProb()
-{
-    PERMITTEDMINLOGPROB = permittedMinLogProbs[getDifficulty()];
+function setPermittedMinLogProb() {
+    setPERMITTEDMINLOGPROB(permittedMinLogProbs[getDifficulty()]);
 }
 function hideMainMenu() {
     let menu = document.getElementById("main-menu");
     menu.style.display = "none";
     document.getElementById("start-button-text").textContent = "Resume";
     setPermittedMinLogProb();
-    updateBelievabilityDisplay(window.cy);
+    updateBelievabilityDisplay(window.cy, PERMITTEDMINLOGPROB);
     document.body.style.overflow = 'hidden';
     window.scrollTo(0, 0);
-    //if music is not playing and sound is on, start playing music
     let soundOn = document.querySelector('input[name="sound"]:checked').value == "on";
     if (soundOn) startOrResumeMusic();
 }
@@ -187,36 +97,6 @@ window.addEventListener('resize', function() {
     cy.style.width = cySize + 'px';
 });
 
-function updateGraphDisplay(cy) {
-    let visibleNodes = cy.nodes(":visible");
-    let layoutOptions = {
-        name: 'avsdf',
-        nodeSeparation: 120,
-        animate: "end",
-        animationDuration: 2000,
-        animationEasing: 'ease-in-out',
-        nodeSeparation: 120,
-        eles: visibleNodes
-    };
-    let layout = cy.layout(layoutOptions);
-    layout.run();
-    let endFontSize = visibleNodes.length > 3 ? cyBaseFontSize*19/15 : cyBaseFontSize;
-    layout.promiseOn('layoutstop').then(() => {
-        cy.style().selector('node').style('font-size', endFontSize + 'px').update();
-    });
-}
-function preventCloseWindow()
-{
-    window.onbeforeunload = function(event) {
-            event.preventDefault(); //prevent closing the window
-            event.returnValue = ''; //some browsers require this to show a confirmation dialog
-            return ''; //returning a string shows a confirmation dialog in some browsers
-    };
-}
-function allowCloseWindow()
-{
-    window.onbeforeunload = null; //allow closing the window
-}
 document.addEventListener('DOMContentLoaded', async function () {
     log("ARR "+window.location.href);
     window.dispatchEvent(new Event('resize')); //trigger first time resize to make cy square
@@ -230,11 +110,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     let mediaQuery = window.matchMedia("(max-width: 600px)");
     
-    function setCyFontSizeFromMedia(m)
-    {
-        cyBaseFontSize = m.matches ? 15 : 12;
+    function setCyFontSizeFromMedia(m) {
+        setCyBaseFontSize(m.matches ? 15 : 12);
     }
-    setCyFontSizeFromMedia(mediaQuery); //set once at start
+    setCyFontSizeFromMedia(mediaQuery);
     
     var cy = window.cy = cytoscape({
         container: document.getElementById('cy'),
@@ -302,11 +181,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         userZoomingEnabled: false,
         userPanningEnabled: false
     });
+    setCy(cy);
     let firstNode = cy.nodes().first();
     firstNode.style("display", "element");
-    updateGraphDisplay(cy);
-    updateLogLik(cy); //call to initialize node logprobs
-    updateBelievabilityDisplay(cy);
+    updateGraphDisplay(cy, cyBaseFontSize);
+    updateLogLik(cy);
+    updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
     showMainMenu();
 
     cy.bind('tap', 'node', function (evt) {
@@ -317,16 +197,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     log("LOADED");
 });
 
-window.restartGameOnHardMode = function()
-{
+window.restartGameOnHardMode = function() {
     document.querySelector('input[name="difficulty"][value="hard"]').checked = true;
-    PERMITTEDMINLOGPROB = permittedMinLogProbs[getDifficulty()];
+    setPERMITTEDMINLOGPROB(permittedMinLogProbs[getDifficulty()]);
     window.cy.nodes().forEach(function (node) {
-            node.data().predicateValue = 0;
+        node.data().predicateValue = 0;
     });
-    updateBelievabilityDisplay(window.cy);
+    updateBelievabilityDisplay(window.cy, PERMITTEDMINLOGPROB);
     hideModal();
-    hideNodeDisplay(()=>{}); //must do to ensure influence buttons are regenerated
+    hideNodeDisplay(()=>{});
 }
 
 function verifyRestart()
@@ -363,3 +242,11 @@ function about()
     log("about");
     window.open('about.html', '_blank');
 }
+
+// Make functions available globally for HTML onclick handlers
+window.showMainMenu = showMainMenu;
+window.hideMainMenu = hideMainMenu;
+window.startOrResumeMusic = startOrResumeMusic;
+window.stopMusic = stopMusic;
+window.verifyRestart = verifyRestart;
+window.about = about;

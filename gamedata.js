@@ -1,6 +1,6 @@
-const permittedMinLogProbs = {"easy":-8.58,"hard":-6.37}   ; //for restricting moves; derived from game analysis
-const CHARACTERNAME = "Bruto";
-async function load_elements(debug=false)
+export const permittedMinLogProbs = {"easy":-8.58,"hard":-6.37}   ; //for restricting moves; derived from game analysis
+export const CHARACTERNAME = "Bruto";
+export async function load_elements(debug=false)
 {
     //let response = await fetch(new Request(filename));
     //let text = await response.text();
@@ -325,4 +325,3 @@ Most experts are trying to get things right
     return elements;
 }
 
-module.exports = {load_elements, permittedMinLogProbs};
