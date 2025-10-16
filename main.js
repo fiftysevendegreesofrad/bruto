@@ -10,13 +10,14 @@ import { displayNodeDetails, hideNodeDisplay } from './BeliefPanel.js';
 import { setCy, DEVMODE, setCyBaseFontSize, cyBaseFontSize, setPERMITTEDMINLOGPROB, PERMITTEDMINLOGPROB, allowClickNodes } from './sharedState.js';
 import { updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal } from './uiUtils.js';
 import { updateLogLik } from './BeliefGraphUtils.js';
+import { getAssetUrl } from './utils/assets.js';
 
 setPERMITTEDMINLOGPROB(permittedMinLogProbs["easy"]);
 let nodeDisplay = DEVMODE ? "element" : "none";
 
 //preload completion image
 let completionImage = new Image();
-completionImage.src = "/img/completion_image.webp";
+completionImage.src = getAssetUrl("img/completion_image.webp");
 
 //logging
 const DB_URL = 'https://beliefnet-24eef-default-rtdb.europe-west1.firebasedatabase.app/logs.json';
@@ -52,7 +53,7 @@ function showMainMenu() {
     menu.style.display = "block";
 }
 
-let audio = DEVMODE?null:new Audio("/bruto.m4a");
+let audio = DEVMODE?null:new Audio(getAssetUrl("bruto.m4a"));
 if (audio)
 {
     audio.volume = 0.2;

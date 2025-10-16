@@ -1,12 +1,13 @@
 import { DEVMODE } from './sharedState.js';
 import { CHARACTERNAME } from './gamedata.js';
 import { updateLogLik, computeBelievabilityFromLogLik } from './BeliefGraphUtils.js';
+import { getAssetUrl } from './utils/assets.js';
 
 const NUMCLOWNIMAGES = 7;
 let clownImages = [];
 for (let i = 1; i <= NUMCLOWNIMAGES; i++) {
     let img = new Image();
-    img.src = `/img/clown${i}.jpg`;
+    img.src = getAssetUrl(`img/clown${i}.jpg`);
     clownImages.push(img);
 }
 
