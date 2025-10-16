@@ -1,6 +1,12 @@
 * {
     font-size: 15px;
 }
+
+body {
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace !important;
+    overflow: hidden;
+}
+
 #glitch-overlay {
     position: fixed;
     top: 0;
@@ -98,6 +104,26 @@
     max-width: 90%;;
     width: 20cm;
     box-sizing: border-box;
+    background-color: white;
+    border: 1px solid #888;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.close:hover,
+.close:focus {
+    color: #999;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .behind {
@@ -135,13 +161,18 @@
     margin: 10px;
 }
 
-body {
-    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-    overflow: hidden;
+.radio label {
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 
-h1, h2 {
-    /*font-family: Helvetica, Arial, sans-serif;*/
+.radio input[type="radio"] {
+    margin-right: 5px;
+    margin-left: 0;
+    width: auto;
+    height: auto;
 }
 
 .text-chroma,
@@ -168,23 +199,29 @@ h2,
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 2.5em !important;
     font-weight: bold;
 }
 
 h2 {
-    font-size: 1.5em;
+    font-size: 1.5em !important;
     font-weight: bold;
 }
 
 h3 {
-    font-size: 1em;
+    font-size: 1em !important;
     font-weight: bold;
 }
 
-button {
+button,
+.btn,
+.btn-start,
+.btn-about {
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace !important;
     font-size: 1em;
-    margin-right: 10px;
+    margin: 5px;
+    border-radius: 4px !important;
+    border: 1px solid #ccc;
 }
 
 .line {
@@ -230,6 +267,7 @@ button {
 .btn-start {
     background-color: brown;
     border-color: brown;
+    color: white;
 }
 
 .btn-about {
@@ -268,6 +306,8 @@ button {
 {
     /* padding between rows */
     padding-bottom: 10px;
+    padding-right: 10px;
+    vertical-align: middle;
 }
 
 .table {font-size: 1em;}

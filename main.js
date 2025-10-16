@@ -1,3 +1,9 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import cytoscape from 'cytoscape';
+import avsdf from 'cytoscape-avsdf';
+cytoscape.use(avsdf);
+
 import { load_elements, permittedMinLogProbs, CHARACTERNAME } from './gamedata.js';
 import './BeliefGraphUtils.js';
 import { displayNodeDetails, hideNodeDisplay } from './BeliefPanel.js';
