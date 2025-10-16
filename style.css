@@ -95,6 +95,9 @@
     transform: translate(-50%, -50%);
     padding: 20px;
     z-index: 2000;
+    max-width: 90%;;
+    width: 20cm;
+    box-sizing: border-box;
 }
 
 .behind {
