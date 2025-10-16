@@ -9,7 +9,7 @@
     height: 100%;
     z-index: 9999;
     pointer-events: none;
-    mix-blend-mode: screen;
+    mix-blend-mode: multiply;
 }
 #glitch-overlay canvas {
     width: 100%;

@@ -13,7 +13,8 @@ container.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const geometry = new THREE.PlaneGeometry(2, 2);
-const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+// make base white so mix-blend: multiply doesn't darken the whole page
+const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
@@ -26,13 +27,16 @@ glitchPass.goWild = true;
 glitchPass.enabled = false;
 composer.addPass(glitchPass);
 
+const maxSpeed = 10;
+
 const scanlineShader = {
   uniforms: {
     tDiffuse: { value: null },
     time: { value: 0 },
-    speed: { value: 5.0 },
+    speed: { value: maxSpeed/2 },
+    // much smaller intensity for subtle effect
     scanlineIntensity: { value: 0.1 },
-    scanlineCount: { value: 800.0 }
+    scanlineCount: { value: 400.0 }
   },
   vertexShader: `
     varying vec2 vUv;
@@ -50,9 +54,13 @@ const scanlineShader = {
     varying vec2 vUv;
 
     void main() {
-      vec4 color = texture2D(tDiffuse, vUv);
-      float scanline = sin(vUv.y * scanlineCount + time * speed);
-      color.rgb -= scanline * scanlineIntensity;
+      vec4 color = texture2D(tDiffuse, vUv); // base is white
+      // sine in [0..1]
+      float s = 0.5 * (sin(vUv.y * scanlineCount + time * speed) + 1.0);
+      // only darken at the peaks to make very thin lines
+      float mask = s;//smoothstep(0.985, 1.0, s);
+      float mul = 1.0 - scanlineIntensity * mask;
+      color.rgb *= mul;
       gl_FragColor = color;
     }
   `
@@ -91,6 +99,7 @@ composer.addPass(chromaticPass);
 // schedule glitch once per minute, short burst
 const GLITCH_INTERVAL = 60.0; // seconds
 const GLITCH_DURATION = 0.5;  // seconds
+const SCANLINE_CHANGE_INTERVAL = 1; // seconds
 let lastGlitchTime = 0;
 let lastScanlineChangeTime = 0;
 let started = false;
@@ -117,9 +126,9 @@ function animate(time) {
   glitchPass.enabled = (now - lastGlitchTime) < GLITCH_DURATION;
 
   // change scanline speed every so often
-  if (now - lastScanlineChangeTime >= 15.0) {
+  if (now - lastScanlineChangeTime >= SCANLINE_CHANGE_INTERVAL) {
     lastScanlineChangeTime = now;
-    scanlinePass.uniforms.speed.value = Math.random() * 10.0 - 5.0;
+    scanlinePass.uniforms.speed.value = Math.random() * maxSpeed - maxSpeed/2;
   }
 
   // scanlines update every frame (always on)
