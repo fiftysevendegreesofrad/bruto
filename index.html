@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  
+	<title>BeliefNet</title>
+
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+	
+
+
+
+	
+  <script type="module" crossorigin src="/assets/index-CMkoAwFz.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-C6QT2NFy.css">
+</head>
+
+<body>
+  <div id="glitch-overlay"></div>
+	<div class="header">
+		<div class="hamburger-menu" onclick="showMainMenu()">
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<span id="fixed-text"><span class="CharacterName"></span>'S<br>BULLSHITOMETER</span>
+		<div id="progress-bar-container" class="hidden">
+			<div id="progress-bar">
+				<span id="moving-text"></span>
+			</div>
+		</div>
+	</div>
+
+	<div>
+		<div id="node-display" class="paper-bg">
+			<span id='node-close' class='close'>&times;</span>
+			<div class="image-text-container">
+				<div class="bordered-image" id="clown-image-container"></div>
+				<p class="image-text"><b><u>PsyOps Target Subject</u></b>
+					<br>Name: <span class="CharacterName"></span>
+					<br>Age: 28
+					<br>Relationship status: Single
+					<br>Occupation: Telemarketer (Unemployed)
+					<br>Health status: Moderate
+					<br>
+					<br><b><u>PsyOps Target Belief</u></b>
+					<br>Reptilian Elite
+				</p>
+			</div>
+			<h1 id="topic"></h1>
+			<p id="currentBelief"></p>
+			<h2>Alternative Beliefs:</h2>
+			<p id="nodeDetails"></p>
+
+			<div id="ResearchButton"></div>
+		</div>
+		<div id="body-div">
+		<div class="graph-top">
+			<div id="normal-graph-info" class="hide-at-start">
+				<b>Mind map of <span class="CharacterName"></span>'s beliefs</b>
+				<br><i>Click any belief for details</i>
+			</div>
+		</div>
+		<div id="impossible-info"></div>
+		<div id="cy"></div>
+		<div id="graph-bottom" class="hide-at-start">
+			<ul>
+				<li>
+					<font color="#d52b00"><b>Red arrows</b></font> show contradicting beliefs
+				</li>
+				<li>
+					<font color="#009E73"><b>Green arrows</b></font> show supporting beliefs
+				</li>
+				<li><b>Grey arrows</b> show beliefs not currently influencing</li>
+				<li>Beliefs shown <span class=larger>larger</span> are triggering <span class="CharacterName"></span>'s
+					bullshitometer more</li>
+			</ul>
+		</div>
+		</div>
+	</div>
+
+	<div id="myModal" class="modal">
+		<div class="modal-content"><span id='modal-close' class='close'>&times;</span><span id="modal-message"></span>
+		</div>
+	</div>
+
+	<div id="main-menu" class="modal behind">
+		<div class="menu-background">
+			<div class="menu-content paper-bg">
+				<p>
+				<span class="menu-title">BRUTO'S BULLSHITOMETER</span>
+				</p>
+				<div class="radio">
+					<label><input type="radio" name="difficulty" value="easy" checked>Easy</label>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<label><input type="radio" name="difficulty" value="hard" onclick="verifyRestart()">Hard</label>
+				</div>
+				<div class="radio">
+					<label><input type="radio" name="sound" value="on" onclick="startOrResumeMusic()" checked>Sound on</label>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<label><input type="radio" name="sound" value="off" onclick="stopMusic()">Sound off</label>
+				</div>
+				<p>
+				<button type="button" class="btn-about" onclick="about()">FAQ & Credits</button>
+				</p>
+				<p>
+					<strong>Content warning:</strong> Conspiracy beliefs. Intended for adults and may not be suitable for minors.
+					 We record clicks on this game for academic research.
+					 <a href="Beliefnet_PIS.pdf" target="_blank">Details here</a>
+					</p>
+				<p>
+				<button type="button" class="btn-start" onclick="hideMainMenu()"><span id="start-button-text">Start</span></button>
+				</p>
+			</div>
+	</div>
+
+</body>
+
+</html>
