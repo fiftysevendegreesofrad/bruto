@@ -48,6 +48,7 @@ glitchPass.enabled = false;
 composer.addPass(glitchPass);
 
 const maxSpeed = 10;
+const MIN_SCANLINE_INTENSITY = 0.04; // minimum visible scanline intensity
 
 const scanlineShader = {
   uniforms: {
@@ -58,7 +59,8 @@ const scanlineShader = {
     scanlineIntensity: { value: 0.1 },
     scanlineCount: { value: 300.0 },
     // NEW: phase for the 20s intensity modulation
-    intensityPhase: { value: 0 }
+    intensityPhase: { value: 0 },
+    _dynIntensity: { value: 0.1 } // new uniform for clamped dynamic intensity
   },
   vertexShader: `
     varying vec2 vUv;
@@ -72,20 +74,22 @@ const scanlineShader = {
     uniform float phase;
     uniform float scanlineIntensity;
     uniform float scanlineCount;
-    uniform float intensityPhase; // NEW
+    uniform float intensityPhase;
+    uniform float _dynIntensity;
     varying vec2 vUv;
 
     void main() {
-      vec4 color = texture2D(tDiffuse, vUv); // base is white
-      // sine in [0..1], driven by accumulated phase so it doesn't jump on speed changes
-      float s = 0.5 * (sin(vUv.y * scanlineCount + phase) + 1.0);
-      float mask = s;
+      vec4 color = texture2D(tDiffuse, vUv);
 
-      // 20s sine wave for intensity in [0..1], scaled by scanlineIntensity
-      float intensityWave = 0.5 + 0.5 * sin(intensityPhase);
-      float dynIntensity = scanlineIntensity * intensityWave;
+      // Quantize to scanline row
+      float scanline = floor(vUv.y * scanlineCount);
+      float rowY = scanline / scanlineCount;
+      float s = 0.5 * (sin(rowY * scanlineCount + phase) + 1.0);
 
-      float mul = 1.0 - dynIntensity * mask;
+      // Use the clamped dynamic intensity from JS
+      float dynIntensity = _dynIntensity;
+
+      float mul = 1.0 - dynIntensity * s;
       color.rgb *= mul;
       gl_FragColor = color;
     }
@@ -233,11 +237,25 @@ function animate(time) {
     scanlinePass.uniforms.speed.value = Math.random() * maxSpeed - maxSpeed/2;
   }
 
-  // integrate phase so speed changes don't cause positional jumps
-  scanlinePass.uniforms.phase.value += dt * scanlinePass.uniforms.speed.value;
-
-  // integrate intensity phase for a 20s period
+  // integrate intensity phase for a 20s period (always)
   scanlinePass.uniforms.intensityPhase.value += dt * (Math.PI * 2.0 / INTENSITY_PERIOD);
+
+  // --- Scanline intensity threshold logic ---
+  const intensityPhase = scanlinePass.uniforms.intensityPhase.value;
+  let intensityWave = 0.5 + 0.5 * Math.sin(intensityPhase);
+  let dynIntensity = scanlinePass.uniforms.scanlineIntensity.value * intensityWave;
+
+  // Only advance scanline phase if not clamped
+  if (dynIntensity >= MIN_SCANLINE_INTENSITY) {
+    scanlinePass.uniforms.phase.value += dt * scanlinePass.uniforms.speed.value;
+  }
+
+  // Clamp dynIntensity if below threshold
+  if (dynIntensity < MIN_SCANLINE_INTENSITY) {
+    dynIntensity = MIN_SCANLINE_INTENSITY;
+  }
+
+  scanlinePass.uniforms._dynIntensity = { value: dynIntensity };
 
   // ramp chromatic glitch boost
   {
