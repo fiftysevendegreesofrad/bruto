@@ -152,7 +152,7 @@ function updateNodeDetails(node) {
                         }
                         else
                         {
-                            div.innerHTML += `<img src="img/completion_image.webp" style="max-width:80vw;max-height:50vh"/>
+                            div.innerHTML += `<img src="/img/completion_image.webp" style="max-width:80vw;max-height:50vh"/>
                             <h1>Well done!</h1><h2>
                             <h2>You completed the game on hard mode.</h2>
                             <p>Convinced that we are governed by reptiles, ${CHARACTERNAME} goes out one day and attacks a zookeeper.</p>

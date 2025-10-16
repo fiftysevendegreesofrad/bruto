@@ -6,7 +6,7 @@ const NUMCLOWNIMAGES = 7;
 let clownImages = [];
 for (let i = 1; i <= NUMCLOWNIMAGES; i++) {
     let img = new Image();
-    img.src = "img/clown" + i + ".jpg";
+    img.src = `/img/clown${i}.jpg`;
     clownImages.push(img);
 }
 

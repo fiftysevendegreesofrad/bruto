@@ -16,7 +16,7 @@ let nodeDisplay = DEVMODE ? "element" : "none";
 
 //preload completion image
 let completionImage = new Image();
-completionImage.src = "img/completion_image.webp";
+completionImage.src = "/img/completion_image.webp";
 
 //logging
 const DB_URL = 'https://beliefnet-24eef-default-rtdb.europe-west1.firebasedatabase.app/logs.json';
@@ -52,7 +52,7 @@ function showMainMenu() {
     menu.style.display = "block";
 }
 
-let audio = DEVMODE?null:new Audio("bruto.m4a");
+let audio = DEVMODE?null:new Audio("/bruto.m4a");
 if (audio)
 {
     audio.volume = 0.2;
