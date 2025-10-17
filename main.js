@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let mediaQuery = window.matchMedia("(max-width: 600px)");
     
     function setCyFontSizeFromMedia(m) {
-        setCyBaseFontSize(m.matches ? 15 : 12);
+        setCyBaseFontSize(m.matches ? 15*.6 : 12*.6);
     }
     setCyFontSizeFromMedia(mediaQuery);
     
@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'text-margin-y': 5,
                     'font-family': 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace',
                     'color': '#000000',
-                    'width': 70,
-                    'height': 70,
+                    'width': 40,
+                    'height': 40,
                     'background-color': 'mapData(predicateValue, 0, 1, #88aaff, #cc60cc)',
                     'background-image': ele => getAssetUrl(`img/${ele.id().toLowerCase()}.png`),
                     'background-fit': 'contain',

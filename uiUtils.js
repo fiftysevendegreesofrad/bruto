@@ -92,8 +92,9 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
     };
     let layout = cy.layout(layoutOptions);
     layout.run();
-    let endFontSize = visibleNodes.length > 3 ? cyBaseFontSize*19/15 : cyBaseFontSize;
+    let endFontSize = visibleNodes.length > 6 ? cyBaseFontSize*28/15 : cyBaseFontSize;
+    let endIconSize = visibleNodes.length > 9 ? 70 : 40;
     layout.promiseOn('layoutstop').then(() => {
-        cy.style().selector('node').style('font-size', endFontSize + 'px').update();
+        cy.style().selector('node').style('font-size', endFontSize + 'px').style('width', endIconSize + 'px').style('height', endIconSize + 'px').update();
     });
 }
