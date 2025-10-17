@@ -131,37 +131,39 @@ document.addEventListener('DOMContentLoaded', async function () {
                 style: {
                     'label': 'data(displaylabel)',
                     'text-wrap': 'wrap',
-                    'text-valign': 'center',
+                    'text-valign': 'bottom',
+                    'text-halign': 'center',
+                    'text-margin-y': 5,
+                    'font-family': 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace',
                     'color': '#000000',
-                    'width': 'mapData(logprob,-3,0,60,20)',
-                    'height': 'mapData(logprob,-3,0,60,20)',
-                    'pie-1-background-color': 'mapData(predicateValue, 0, 1, #0011ff, #cc00cc)',
-                    'pie-1-background-size': 'mapData(baseProb,0,1,0,100)',
-                    'pie-2-background-color': 'mapData(predicateValue, 0, 1, #aaaaff, #ffaaff)',
-                    'pie-2-background-size': 'mapData(baseProb,0,1,100,0)',
+                    'width': 70,
+                    'height': 70,
+                    'background-color': 'mapData(predicateValue, 0, 1, #88aaff, #cc60cc)',
+                    'background-image': ele => getAssetUrl(`img/${ele.id().toLowerCase()}.png`),
+                    'background-fit': 'contain',
+                    'background-clip': 'none',
+                    'shape': 'ellipse',
                     'display': nodeDisplay,
-                    'font-size': cyBaseFontSize+"px"
+                    'font-size': cyBaseFontSize+"px",
+                    'border-width': '0px',
+                    'cursor': 'pointer'
                 }
             },
             {
                 selector: 'node[predicateValue=0.5]',
                 style: {
-                    'pie-1-background-color': '#444444',
-                    'pie-2-background-color': '#aaaaaa',
+                    'background-color': '#444444'
                 }
             },
             {
-                selector: 'node[researched=0]',
-                style: {
-                    'border-width': '10px',
-                    'border-color': '#aaaaaa',
-                    'border-style': 'dotted'
-                }
-            },
-            {
-                selector: 'node[researched=1]',
+                selector: 'node[target=1]',
                 style: {
                     'border-width': '0px',
+                    'outline-width': '5px',
+                    'outline-color': '#aaaaaa',
+                    'outline-style': 'dotted',
+                    'outline-opacity': 0.8,
+                    'outline-offset': '3px'
                 }
             },
             {
@@ -172,8 +174,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'opacity': 0.5,
                     'target-arrow-shape': 'triangle',
                     'target-arrow-color': 'data(color)',
-                    //'source-arrow-shape': 'triangle',
-                    //'source-arrow-color': 'data(color)',
                     'curve-style': 'unbundled-bezier',
                     'control-point-distances': '10px',
                     'control-point-weights': '0.5',

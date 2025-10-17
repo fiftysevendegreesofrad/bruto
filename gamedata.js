@@ -298,7 +298,7 @@ Most experts are trying to get things right
             line = lines.shift();
         }
         elements.nodes.push({data: {id: nodeLabel, label: userLabel, displaylabel: userLabelMultiLine, displayLabelSingleLine: userLabelSingleLine, baseProb: baseProb, options: options,
-            predicateValue: 0, logprob: 0, researched: 0, wacky: wacky, target: false}});
+            predicateValue: 0, logprob: 0, researched: 0, wacky: wacky, target: 0}});
 
         //now we are expecting edges
         while(line.trim()!="")
@@ -321,7 +321,7 @@ Most experts are trying to get things right
             line = lines.shift();
         }
     }
-    elements.nodes[0].data.target=true; //first node is the target
+    elements.nodes[0].data.target=1; //first node is the target. use 1/0 not true/false for compatibility with cytoscape
     return elements;
 }
 

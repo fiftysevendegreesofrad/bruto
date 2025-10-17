@@ -97,7 +97,7 @@ function updateNodeDetails(node) {
 
 
         let optionSpan = document.createElement("span");
-        const isTargetOption = (node.data().target && i==0);
+        const isTargetOption = (node.data().target==1 && i==0);
         let htmlOption = "";
         let color = predicateToTextColour(getPredicateFromIndex(node.data(), i));
         if (isTargetOption)
