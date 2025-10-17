@@ -188,6 +188,10 @@ let glitchEndTime = 0;
 // NEW: long glitch deadline
 let longGlitchUntil = 0;
 
+let lastFrameTime = 0;
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
 // NEW: trigger glitch on any mouse/touch press (do not block the event)
 // Ignore while a long glitch is active
 function triggerGlitch() {
@@ -208,6 +212,12 @@ window.triggerLongGlitch = function(duration = LONG_GLITCH_DURATION) {
 
 function animate(time) {
   requestAnimationFrame(animate);
+
+  // Throttle to 30 FPS
+  if (time - lastFrameTime < FRAME_INTERVAL) {
+    return;
+  }
+  lastFrameTime = time;
 
   // convert RAF timestamp (ms) -> seconds
   const now = (time || performance.now()) / 1000;
