@@ -49,11 +49,11 @@ function updateEdgeColoursGetNodeLogProb(n) {
         //console.log("  mutual support from "+otherNode.data("label")+" "+nodeMutualSupport);
         nodeLogOdds += nodeSupport;
         if (nodeSupport > 0)
-            e.data("color", "#009E73");
+            e.data("colorType", 1);
         else if (nodeSupport < 0)
-            e.data("color", "#d52b00");
+            e.data("colorType", -1);
         else
-            e.data("color", "grey");
+            e.data("colorType", 0);
     }
     
     let logProb = nodeLogOdds - Math.log(1 + Math.exp(nodeLogOdds));

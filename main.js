@@ -170,14 +170,22 @@ document.addEventListener('DOMContentLoaded', async function () {
                 selector: 'edge',
                 style: {
                     'width': 'mapData(absweight, 0, ' + maxweight + ', 0, 7)',
-                    'line-color': 'data(color)',
+                    'line-color': 'mapData(colorType, -1, 1, #d52b00, #009E73)',
                     'opacity': 0.5,
                     'target-arrow-shape': 'triangle',
-                    'target-arrow-color': 'data(color)',
+                    'target-arrow-color': 'mapData(colorType, -1, 1, #d52b00, #009E73)',
                     'curve-style': 'unbundled-bezier',
                     'control-point-distances': '10px',
                     'control-point-weights': '0.5',
                     'label': DEVMODE?'data(weight)':''
+                }
+            },
+            {
+                selector: 'edge[colorType=0]',
+                style: {
+                    'line-color': 'grey',
+                    'target-arrow-color': 'grey',
+                    'line-style': 'dotted'
                 }
             }
         ],

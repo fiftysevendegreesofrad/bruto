@@ -310,7 +310,7 @@ Most experts are trying to get things right
                 let source = parts[1].trim();
                 let positiveOnly = parts[2]=="01";
                 elements.edges.push({data: {source: source, target: nodeLabel, weight: weight, absweight: Math.abs(weight), 
-                    directed: true, color:'grey', narrative: {}, positiveOnly: positiveOnly}});
+                    directed: true, colorType:0, narrative: {}, positiveOnly: positiveOnly}});
             }
             else
             {
