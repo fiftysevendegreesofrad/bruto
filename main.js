@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             {
                 selector: 'node[predicateValue=0.5]',
                 style: {
-                    'background-color': '#444444'
+                    'background-color': '#a0a0a0'
                 }
             },
             {
