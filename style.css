@@ -33,6 +33,15 @@ body {
     display: flex;
     align-items: center;
 }
+
+#body-div {
+    width: 22cm;
+    margin: auto;
+    max-width: 100%;
+    text-align: left;
+    align-items: center;
+}
+
 #progress-bar-container.hidden {
     display: none;
 }
