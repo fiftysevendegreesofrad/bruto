@@ -115,13 +115,48 @@ document.addEventListener('DOMContentLoaded', async function () {
     let elements = await load_elements();
     let maxweight = elements.edges.map(x => x.data.absweight).reduce((a, b) => Math.max(a, b));
 
-    let mediaQuery = window.matchMedia("(max-width: 600px)");
+    // Preload node images as data URLs using actual node ids from elements
+    const NODE_IMAGE_SUFFIXES = ['_noglow', '_red', '_blue'];
+    let nodeImageDataUrls = {};
+    async function preloadNodeImages() {
+        let promises = [];
+        elements.nodes.forEach(node => {
+            const nodeId = node.data.id.toLowerCase();
+            nodeImageDataUrls[nodeId] = {};
+            NODE_IMAGE_SUFFIXES.forEach(suffix => {
+                let img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = getAssetUrl(`img/${nodeId}${suffix}.png`);
+                let p = new Promise(resolve => {
+                    img.onload = function() {
+                        let canvas = document.createElement('canvas');
+                        canvas.width = img.width || 40;
+                        canvas.height = img.height || 40;
+                        let ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        nodeImageDataUrls[nodeId][suffix] = canvas.toDataURL();
+                        resolve();
+                    };
+                    img.onerror = function() {
+                        nodeImageDataUrls[nodeId][suffix] = 'FAILED_PRELOAD';
+                        resolve();
+                    };
+                });
+                promises.push(p);
+            });
+        });
+        await Promise.all(promises);
+    }
+
+    await preloadNodeImages();
     
+    let mediaQuery = window.matchMedia("(max-width: 600px)");
     function setCyFontSizeFromMedia(m) {
         setCyBaseFontSize(m.matches ? 15*.6 : 12*.6);
     }
     setCyFontSizeFromMedia(mediaQuery);
-    
+
+    // Only initialize Cytoscape after all images are loaded
     var cy = window.cy = cytoscape({
         container: document.getElementById('cy'),
 
@@ -144,7 +179,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                         let suffix = '_noglow';
                         if (val === 1) suffix = '_red';
                         else if (val === 0) suffix = '_blue';
-                        return getAssetUrl(`img/${ele.id().toLowerCase()}${suffix}.png`);
+                        const nodeId = ele.id().toLowerCase();
+                        return (nodeImageDataUrls[nodeId] && nodeImageDataUrls[nodeId][suffix])
+                            ? nodeImageDataUrls[nodeId][suffix]
+                            : 'FAILED_RETRIEVE';
                     },
                     'background-fit': 'contain',
                     'background-clip': 'none',
