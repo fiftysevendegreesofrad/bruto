@@ -324,7 +324,7 @@ const dirtShader = {
       color.rgb *= (1.0 - dirt.a * 0.3);
 
       // Add a subtle yellow tinge globally (applied everywhere, not just dirt)
-      color.rgb *= vec3(1,1,0.95);
+      color.rgb *= vec3(1,1,0.975);
 
       gl_FragColor = color;
     }
