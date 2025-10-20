@@ -71,7 +71,7 @@ Governments do both good and bad things but don't have that many secrets
 
 BIRDS* 0.000001: Birds
 All birds have been replaced with robot surveillance drones
-Birds are just birds, man, they're cool but what's the big deal?
+Birds are just birds, man, they're cool but what's the big deal?.
 +5 FIVEG 01
 11 The masts are also used to control the bird drones
 10 Hang on, couldn't those masts also be remote controls for something?
@@ -197,24 +197,24 @@ I'm secure in my friendships as a conventional member of society
 01 The world has room for me to be a little bit different.
 00 Not that we have any differences, really.
 +1 LEADER
-11 My friends don't think that.
+11 My new friends would agree.
 10 My friends don't think that.
-01 My friends would agree.
-00 My friends would agree.
+01 My new friends don't actually think that.
+00 My friends would agree, politics right?
 +1 BIRDS
-11 My friends don't think that. WAKE UP SHEEPLE!
-10 My friends don't think that. 
-01 My friends would agree.
-00 My friends would agree.
+11 My new friends would agree. WAKE UP SHEEPLE!
+10 My friends don't think that. WAKE UP SHEEPLE!
+01 My new friends might have something to say about that.
+00 My friends would wonder why I even asked.
 +1 FIVEG
-11 My friends don't think that. WAKE UP SHEEPLE!
-10 My friends don't think that. 
-01 My friends would agree, the science is pretty clear.
+11 My new friends would agree. One of them worked out the equation for seeing around corners. WAKE UP SHEEPLE!
+10 My friends don't think that. WAKE UP SHEEPLE!
+01 My new friends would have something to say about that.
 00 My friends would agree, the science is pretty clear.
 +1 CHEMTRAILS
-11 My friends don't think that. WAKE UP SHEEPLE!
-10 My friends don't think that. 
-01 My friends would agree. 
+11 My new friends have told me the formula. WAKE UP SHEEPLE!
+10 My friends don't think that. WAKE UP SHEEPLE!
+01 My new friends would have something to say about that.
 00 My friends would agree. We all paid attention in school.
 
 NORESPECT 0.7: Respect
