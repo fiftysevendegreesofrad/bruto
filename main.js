@@ -145,8 +145,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'shape': 'ellipse',
                     'display': nodeDisplay,
                     'font-size': cyBaseFontSize+"px",
-                    'border-width': '0px',
-                    'cursor': 'pointer'
+                    'border-width': '0px'
                 }
             },
             {
