@@ -47,6 +47,7 @@ export { log, getDifficulty };
 function showMainMenu() {
     let menu = document.getElementById("main-menu");
     menu.style.display = "block";
+    document.body.style.visibility = "visible";
 }
 
 let audio = DEVMODE?null:new Audio(getAssetUrl("bruto.m4a"));
@@ -235,6 +236,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     updateLogLik(cy);
     updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
     showMainMenu();
+    
 
     cy.bind('tap', 'node', function (evt) {
         let node = evt.target;

@@ -5,6 +5,7 @@
 body {
     font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace !important;
     overflow: hidden;
+    visibility: hidden;
 }
 
 #glitch-overlay {
