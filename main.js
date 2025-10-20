@@ -138,21 +138,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'color': '#000000',
                     'width': 40,
                     'height': 40,
-                    'background-color': 'mapData(predicateValue, 0, 1, #88aaff, #cc60cc)',
                     'background-opacity': 0, // make the circle invisible but keep geometry for arrows
-                    'background-image': ele => getAssetUrl(`img/${ele.id().toLowerCase()}.png`),
+                    'background-image': ele => {
+                        const val = ele.data('predicateValue');
+                        let suffix = '_noglow';
+                        if (val === 1) suffix = '_red';
+                        else if (val === 0) suffix = '_blue';
+                        return getAssetUrl(`img/${ele.id().toLowerCase()}${suffix}.png`);
+                    },
                     'background-fit': 'contain',
                     'background-clip': 'none',
-                    'shape': 'ellipse',
                     'display': nodeDisplay,
                     'font-size': cyBaseFontSize+"px",
                     'border-width': '0px'
-                }
-            },
-            {
-                selector: 'node[predicateValue=0.5]',
-                style: {
-                    'background-color': '#a0a0a0'
                 }
             },
             {
