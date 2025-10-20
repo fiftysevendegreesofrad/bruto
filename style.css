@@ -33,6 +33,7 @@ body {
     line-height: 50px;
     display: flex;
     align-items: center;
+    position: relative;
 }
 
 #body-div {
@@ -246,12 +247,19 @@ button,
     margin-left: 25px;
 }
 
-#fixed-text, #moving-text {
+#fixed-text, #moving-text-container {
     display: inline-block;
     vertical-align: middle;
     font-weight: bold;
     font-size: 2em;
 }
+
+#moving-text
+{
+    font-size: 1em;
+}
+
+#fixed-text {cursor: pointer;}
 
 #fixed-text {
     color: rgb(99, 53, 35);
@@ -303,13 +311,14 @@ button,
     position: relative;  
 }
 
-#moving-text {
+#moving-text-container {
     color: white;
     position: absolute;
     right: 5px;  
     white-space: nowrap;  
     top: 50%;  
-    transform: translateY(-50%);  
+    transform: translateY(-50%);
+    padding-left: 0;
 }
 
 .optiontable td
@@ -435,4 +444,27 @@ button,
     box-sizing: border-box;
     z-index: 2100;
     margin: 0;
+}
+
+#help-icon {
+    display: inline-flex;
+    justify-content: center;
+    width: 1.1em;
+    height: 1.1em;
+    line-height: 1;
+    border-radius: 50%;
+    border: 2px solid  rgb(179, 128, 109);
+    color: rgb(179, 128, 109);
+    font-weight: bold;
+    font-size: 0.8em;
+    cursor: pointer;
+    position: relative;
+    margin-right: 0.3em;
+    top: 0;
+    transform: translateY(-7%);;
+    vertical-align: middle;
+}
+
+#help-icon:hover {
+    background-color: rgba(139, 69, 19, 0.1);
 }

@@ -299,3 +299,9 @@ window.startOrResumeMusic = startOrResumeMusic;
 window.stopMusic = stopMusic;
 window.verifyRestart = verifyRestart;
 window.about = about;
+
+window.showBullshitHelpModal = function() {
+    let d = document.createElement("div");
+    d.innerHTML = "<h2>What is the Bullshitometer?</h2><p>The Bullshitometer represents the degree to which ALL of Bruto's current beliefs conflict (including any you haven't discovered yet). You could see it as a measure of cognitive dissonance, distrust, or confusion; either way there's only so much of it he can tolerate. If you're stuck on getting him to believe something, even if all the related beliefs support it, that may be because he thought that belief was quite unlikely to start with. You'll have to have to reduce the bullshit elsewhere for him to lower his guard.</p>";
+    showModal(d);
+}
