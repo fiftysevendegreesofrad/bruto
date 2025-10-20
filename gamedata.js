@@ -23,14 +23,14 @@ REPTILES* 0.000001: Reptilian Elite
 The world is governed by a secret elite of literal reptiles - actual lizard people
 The world is governed by humans
 +18.5 GOVERNMENTS
-11 ...which could even be run by lizards too.
-01 ...and they haven't said anything about lizard people.
-10 ...which could even be run by lizards too.
-00 ...and they haven't said anything about lizard people.
+11 ...which could even be run by lizards too. Have you SEEN how they blink?
+01 ...and they haven't said anything about lizard people. Suspicious silence, if you ask me, and have you SEEN how they blink?
+10 ...which could even be run by lizards too. The thermostat is always set way too high.
+00 ...and they haven't said anything about lizard people. Probably because there aren't any.
 
 LEADER* 0.001: Leader
-Our national leader’s primary aim is to expose and defeat a secret cult controlling the government
-Our national leader’s primary aim is to deliver on some of their election promises (minus the usual u-turns) and win the next one
+Our national leader's primary aim is to expose and defeat a secret cult controlling the government (very exciting!)
+Our national leader's primary aim is to deliver on some of their election promises (minus the usual u-turns) and win the next one 
 +5 CHEMTRAILS 01
 11 If chemtrails are a thing, these guys are the number one suspects for being behind them.
 10 Hang on, if chemtrails are a thing, these guys are the number one suspects for being behind them.
@@ -108,8 +108,8 @@ Disease is caused by germs, viruses, etc
 01 Conventional members of society don't believe such nonsense.
 00 Conventional members of society don't believe such nonsense.
 +5 EXPERTSEVIL
-11 And they deny that phone masts make anyone ill.
-10 And they DENY that phone masts make anyone ill.
+11 And they DENY that phone masts make anyone ill. Do your own research!
+10 And they DENY that phone masts make anyone ill. Do your own research!
 01 And lots of telecoms experts are very clear about 5G masts just being for phone signals.
 00 And lots of telecoms experts are very clear about 5G masts just being for phone signals.
 
@@ -125,8 +125,8 @@ Trails left behind jets are condensed water called contrails
 10 Hang on, don't they control all the airports?
 00 ...and they are pretty clear about chemtrails being nonsense.
 -5 HOPE
-11 Nah, there aren't dangerous chemicals emitted by planes - apart from the carbon dioxide, d'oh!
-10 Nah, there aren't dangerous chemicals emitted by planes - apart from the carbon dioxide, d'oh!
+11 Nah, there aren't dangerous chemicals emitted by planes - apart from the carbon dioxide, nitrogen oxides, particulates... d'oh!
+10 Nah, there aren't dangerous chemicals emitted by planes - apart from the carbon dioxide, nitrogen oxides, particulates... d'oh!
 01 Of course we're all being poisoned by chemtrails.
 00 And wouldn't it be terrible if we were all being poisoned by chemtrails?
 +3 OUTSIDER
@@ -223,7 +223,7 @@ My friends respect our differences and always assume the best of me, even when t
 
 EXPERTSWRONG* 0.04: Expertise
 Anyone who can make YouTube videos is an expert, and I can become one myself by watching them
-Experts are sometimes wrong, but if they have spent many years studying a topic, they have a better chance of being right than I do
+Experts are sometimes wrong, but they have done a lot more than just read a forum thread
 Experts should always be trusted
 +3 PHARMA
 01 And they say you have to ask a doctor before taking any medicine.
