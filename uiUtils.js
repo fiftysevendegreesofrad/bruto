@@ -45,11 +45,11 @@ export function updateBelievabilityDisplay(cy, permittedMinLogProb) {
     let logLik = updateLogLik(cy);
     let believability = computeBelievabilityFromLogLik(logLik, permittedMinLogProb);
     let bullshit = 100 - believability;
-    let bullshitText = bullshit.toFixed(1) + "%";
+    let bullshitText = bullshit.toFixed(0) + "%";
     if (bullshit > 100)
         bullshitText = "OVERLOAD (" + bullshitText + ")";
     document.getElementById("moving-text").textContent = bullshitText;
-    updateProgressBar(Math.min(bullshit, 100));
+    updateProgressBar(Math.max(Math.min(bullshit, 100),10)); // min 10% to fit text in bar
     if (DEVMODE)
         document.getElementById("moving-text").textContent += " " + logLik.toFixed(2);
     cy.resize();
