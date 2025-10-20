@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'width': 40,
                     'height': 40,
                     'background-color': 'mapData(predicateValue, 0, 1, #88aaff, #cc60cc)',
+                    'background-opacity': 0, // make the circle invisible but keep geometry for arrows
                     'background-image': ele => getAssetUrl(`img/${ele.id().toLowerCase()}.png`),
                     'background-fit': 'contain',
                     'background-clip': 'none',
