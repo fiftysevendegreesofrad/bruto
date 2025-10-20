@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'text-wrap': 'wrap',
                     'text-valign': 'bottom',
                     'text-halign': 'center',
-                    'text-margin-y': 5,
+                    'text-margin-y': -2, 
                     'font-family': 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace',
                     'color': '#000000',
                     'width': 40,
