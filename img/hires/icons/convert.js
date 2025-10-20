@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const inputDir = __dirname;
-const outputDir = path.join(__dirname, '../../icons'); // Change this path as needed
+const outputDir = path.join(__dirname, '../../../public/img');
 
 // Create output directory if it doesn't exist
 if (!fs.existsSync(outputDir)) {
