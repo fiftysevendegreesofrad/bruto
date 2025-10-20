@@ -1,6 +1,11 @@
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Color from 'color';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const inputDir = __dirname;
 const outputDir = path.join(__dirname, '../../../public/img');
@@ -14,33 +19,13 @@ if (!fs.existsSync(outputDir)) {
 const files = fs.readdirSync(inputDir).filter(file => file.toLowerCase().endsWith('.png'));
 
 function rgbToBold(r, g, b) {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0;
-    if (max === min) {
-        h = 0;
-    } else if (max === r) {
-        h = ((g - b) / (max - min) + (g < b ? 6 : 0)) / 6;
-    } else if (max === g) {
-        h = ((b - r) / (max - min) + 2) / 6;
-    } else {
-        h = ((r - g) / (max - min) + 4) / 6;
-    }
-    const hue = h * 360;
-    // S=100%, L=50%
-    const c = 1;
-    const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
-    let r1, g1, b1;
-    if (hue < 60) { r1 = c; g1 = x; b1 = 0; }
-    else if (hue < 120) { r1 = x; g1 = c; b1 = 0; }
-    else if (hue < 180) { r1 = 0; g1 = c; b1 = x; }
-    else if (hue < 240) { r1 = 0; g1 = x; b1 = c; }
-    else if (hue < 300) { r1 = x; g1 = 0; b1 = c; }
-    else { r1 = c; g1 = 0; b1 = x; }
+    const c = Color([r, g, b]);
+    // Convert to HSL, set saturation to 100% and lightness to 50% for bold/vivid color
+    const bold = c.saturationl(100).lightness(50);
     return {
-        r: Math.round(r1 * 255),
-        g: Math.round(g1 * 255),
-        b: Math.round(b1 * 255)
+        r: Math.round(bold.red()),
+        g: Math.round(bold.green()),
+        b: Math.round(bold.blue())
     };
 }
 
