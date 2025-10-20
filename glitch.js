@@ -167,6 +167,173 @@ composer.addPass(chromaticPass);
 // Set overall glitch intensity here (increase > 1.0 for stronger; < 1.0 for softer)
 chromaticPass.uniforms.glitchIntensity.value = 0.5;
 
+// Dead pixels and dirt - precomputed as separate textures
+const NUM_DEAD_PIXELS = 30; 
+const NUM_DIRT_SPOTS = 30;
+
+// Dirt ellipse size constants
+const correction = 1.3;
+const DIRT_MIN_ASPECT = 0.9*correction;
+const DIRT_MAX_ASPECT = 1.1*correction;
+const DIRT_MIN_SIZE = 4;
+const DIRT_MAX_SIZE = 240;
+
+// Create dead pixel texture
+function createDeadPixelTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1920;
+  canvas.height = 1080;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Get the entire image data once
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  
+  // Draw dead pixels - all clusters are 2x4 (width x height)
+  for (let i = 0; i < NUM_DEAD_PIXELS; i++) {
+    const x = Math.floor(Math.random() * canvas.width);
+    const y = Math.floor(Math.random() * canvas.height);
+    const channel = Math.floor(Math.random() * 3); // 0=R, 1=G, 2=B
+    
+    for (let dy = 0; dy < 3; dy++) {
+      for (let dx = 0; dx < 6; dx++) {
+        const px = Math.min(x + dx, canvas.width - 1);
+        const py = Math.min(y + dy, canvas.height - 1);
+        const index = (py * canvas.width + px) * 4;
+        data[index + channel] = 255; // mark this channel as dead
+        data[index + 3] = 255; // full alpha
+      }
+    }
+  }
+  
+  // Put the modified data back once
+  ctx.putImageData(imgData, 0, 0);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+// Create dirt texture
+function createDirtTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1920;
+  canvas.height = 1080;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw dirt spots - dark semi-transparent elliptical smudges
+  for (let i = 0; i < NUM_DIRT_SPOTS; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    // Inverse power law for size: P(size) ~ size^-alpha, alpha > 1
+    // Use inverse transform sampling: size = ( (max^(1-a) - min^(1-a)) * U + min^(1-a) )^(1/(1-a))
+    // We'll use alpha = 2 for a typical heavy tail
+    const alpha = 2.0;
+    const u = Math.random();
+    const minPow = Math.pow(DIRT_MIN_SIZE, 1 - alpha);
+    const maxPow = Math.pow(DIRT_MAX_SIZE, 1 - alpha);
+    const size = Math.pow((maxPow - minPow) * u + minPow, 1 / (1 - alpha));
+    const aspect = DIRT_MIN_ASPECT + Math.random() * (DIRT_MAX_ASPECT - DIRT_MIN_ASPECT);
+    const xsize = size * aspect;
+    const ysize = size / aspect;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(xsize, ysize);
+    // Draw a unit circle, which becomes an ellipse due to scaling
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.2)');
+    gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
+  }
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+const deadPixelTexture = createDeadPixelTexture();
+const dirtTexture = createDirtTexture();
+
+// Dead pixel pass
+const deadPixelShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    tDeadPixels: { value: deadPixelTexture }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tDeadPixels;
+    varying vec2 vUv;
+
+    void main() {
+      vec4 color = texture2D(tDiffuse, vUv);
+      vec4 mask = texture2D(tDeadPixels, vUv);
+      
+      // Apply dead pixels per channel (0.0 = black = darkest with multiply)
+      if (mask.r > 0.5) color.r = 0.0;
+      if (mask.g > 0.5) color.g = 0.0;
+      if (mask.b > 0.5) color.b = 0.0;
+      
+      gl_FragColor = color;
+    }
+  `
+};
+
+const deadPixelPass = new ShaderPass(deadPixelShader);
+composer.addPass(deadPixelPass);
+
+// Dirt pass (after dead pixels)
+const dirtShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    tDirt: { value: dirtTexture }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tDirt;
+    varying vec2 vUv;
+
+    void main() {
+      vec4 color = texture2D(tDiffuse, vUv);
+      vec4 dirt = texture2D(tDirt, vUv);
+
+      // Apply dirt darkening
+      color.rgb *= (1.0 - dirt.a * 0.3);
+
+      // Add a subtle yellow tinge globally (applied everywhere, not just dirt)
+      color.rgb *= vec3(1,1,0.95);
+
+      gl_FragColor = color;
+    }
+  `
+};
+
+const dirtPass = new ShaderPass(dirtShader);
+composer.addPass(dirtPass);
+
 // REMOVE: schedule glitch once per minute, short burst
 // const GLITCH_INTERVAL = 2.0; // seconds
 const GLITCH_DURATION = 0.05;  // seconds
