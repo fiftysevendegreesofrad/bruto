@@ -15,10 +15,6 @@ import { getAssetUrl } from './utils/assets.js';
 setPERMITTEDMINLOGPROB(permittedMinLogProbs["easy"]);
 let nodeDisplay = DEVMODE ? "element" : "none";
 
-//preload completion image
-let completionImage = new Image();
-completionImage.src = getAssetUrl("img/completion_image.webp");
-
 //logging
 const DB_URL = 'https://beliefnet-24eef-default-rtdb.europe-west1.firebasedatabase.app/logs.json';
 const CLIENT_ID_KEY = 'clientRandomId';

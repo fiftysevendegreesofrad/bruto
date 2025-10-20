@@ -3,6 +3,10 @@ import { CHARACTERNAME } from './gamedata.js';
 import { updateLogLik, computeBelievabilityFromLogLik } from './BeliefGraphUtils.js';
 import { getAssetUrl } from './utils/assets.js';
 
+// Preload completion image here
+let completionImage = new Image();
+completionImage.src = getAssetUrl("img/completion_image.webp");
+
 const NUMCLOWNIMAGES = 7;
 let clownImages = [];
 for (let i = 1; i <= NUMCLOWNIMAGES; i++) {
@@ -103,4 +107,13 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
         updateLayout(); // run again to accommodate size changes
     });    
     
+}
+
+// Provide a function to get the preloaded completion image (as a clone)
+export function getCompletionImage() {
+    let img = completionImage.cloneNode(true);
+    img.className = "completion-image";
+    img.style.maxWidth = "80vw";
+    img.style.maxHeight = "50vh";
+    return img;
 }

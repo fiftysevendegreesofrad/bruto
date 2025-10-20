@@ -1,6 +1,6 @@
 import { cy, DEVMODE, allowClickNodes, setAllowClickNodes, cyBaseFontSize, PERMITTEDMINLOGPROB, ALLOWIMPOSSIBLEMOVES } from './sharedState.js';
 import { predicateToIndex, getPredicateFromIndex, getSupportingEdgesCoeffs, getSupportedEdgesCoeffs, updateLogLik, computeBelievabilityFromLogLik, altNetworkLogLik, getNarrative, predicateToOption } from './BeliefGraphUtils.js';
-import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage } from './uiUtils.js';
+import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage, getCompletionImage } from './uiUtils.js';
 import { CHARACTERNAME } from './gamedata.js';
 import { log, getDifficulty } from './main.js';
 import { getAssetUrl } from './utils/assets.js';
@@ -153,8 +153,8 @@ function updateNodeDetails(node) {
                         }
                         else
                         {
-                            div.innerHTML += `<img src="${getAssetUrl('img/completion_image.webp')}" style="max-width:80vw;max-height:50vh"/>
-                            <h1>Well done!</h1><h2>
+                            div.appendChild(getCompletionImage());
+                            div.innerHTML += `<h1>Well done!</h1><h2>
                             <h2>You completed the game on hard mode.</h2>
                             <p>Convinced that we are governed by reptiles, ${CHARACTERNAME} goes out one day and attacks a zookeeper.</p>
                             <p>I hope you're proud of yourself.</p>`;
