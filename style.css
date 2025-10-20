@@ -449,6 +449,8 @@ button,
 #help-icon {
     display: inline-flex;
     justify-content: center;
+    align-items: center; /* vertical centering */
+    box-sizing: border-box; /* include border in width/height */
     width: 1.1em;
     height: 1.1em;
     line-height: 1;
@@ -461,7 +463,6 @@ button,
     position: relative;
     margin-right: 0.3em;
     top: 0;
-    transform: translateY(-7%);;
     vertical-align: middle;
 }
 
