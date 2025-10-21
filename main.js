@@ -8,7 +8,7 @@ import { load_elements, permittedMinLogProbs, CHARACTERNAME } from './gamedata.j
 import './BeliefGraphUtils.js';
 import { displayNodeDetails, hideNodeDisplay } from './BeliefPanel.js';
 import { setCy, DEVMODE, setCyBaseFontSize, cyBaseFontSize, setPERMITTEDMINLOGPROB, PERMITTEDMINLOGPROB, allowClickNodes } from './sharedState.js';
-import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, nodeImageDataURLs, preloadNodeImages } from './uiUtils.js';
+import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, nodeImageDataURLs, preloadNodeImages, showModal, hideModal } from './uiUtils.js';
 import { updateLogLik } from './BeliefGraphUtils.js';
 import { getAssetUrl } from './utils/assets.js';
 
