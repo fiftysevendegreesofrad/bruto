@@ -168,8 +168,14 @@ composer.addPass(chromaticPass);
 chromaticPass.uniforms.glitchIntensity.value = 0.5;
 
 // Dead pixels and dirt - precomputed as separate textures
-const NUM_DEAD_PIXELS = 30; 
+const NUM_DEAD_PIXELS = 60; 
 const NUM_DIRT_SPOTS = 30;
+
+// Dead pixel distribution parameters (as proportion of canvas dimensions)
+const DEAD_PIXEL_MEAN_X = 0.3;  
+const DEAD_PIXEL_MEAN_Y = 0.7;  
+const DEAD_PIXEL_STD_X = 0.3;  // std as proportion of width
+const DEAD_PIXEL_STD_Y = 0.3;  // std as proportion of height
 
 // Dirt ellipse size constants
 const correction = 1.3;
@@ -177,6 +183,13 @@ const DIRT_MIN_ASPECT = 0.9*correction;
 const DIRT_MAX_ASPECT = 1.1*correction;
 const DIRT_MIN_SIZE = 4;
 const DIRT_MAX_SIZE = 240;
+
+// Box-Muller transform for normal distribution
+function randn() {
+  const u1 = Math.random();
+  const u2 = Math.random();
+  return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+}
 
 // Create dead pixel texture
 function createDeadPixelTexture() {
@@ -193,12 +206,19 @@ function createDeadPixelTexture() {
   
   // Draw dead pixels - all clusters are 2x4 (width x height)
   for (let i = 0; i < NUM_DEAD_PIXELS; i++) {
-    const x = Math.floor(Math.random() * canvas.width);
-    const y = Math.floor(Math.random() * canvas.height);
+    let x, y;
+    // Redraw sample until we get valid bounds
+    do {
+      const nx = randn();
+      const ny = randn();
+      x = Math.floor((DEAD_PIXEL_MEAN_X + DEAD_PIXEL_STD_X * nx) * canvas.width);
+      y = Math.floor((DEAD_PIXEL_MEAN_Y + DEAD_PIXEL_STD_Y * ny) * canvas.height);
+    } while (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height);
+    
     const channel = Math.floor(Math.random() * 3); // 0=R, 1=G, 2=B
     
-    for (let dy = 0; dy < 3; dy++) {
-      for (let dx = 0; dx < 6; dx++) {
+    for (let dy = 0; dy < 2; dy++) {
+      for (let dx = 0; dx < 4; dx++) {
         const px = Math.min(x + dx, canvas.width - 1);
         const py = Math.min(y + dy, canvas.height - 1);
         const index = (py * canvas.width + px) * 4;
