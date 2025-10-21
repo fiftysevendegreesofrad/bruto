@@ -117,3 +117,5 @@ export function getCompletionImage() {
     img.style.maxHeight = "50vh";
     return img;
 }
+
+export let nodeImageDataURLs = {};

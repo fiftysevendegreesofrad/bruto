@@ -1,6 +1,6 @@
 import { cy, DEVMODE, allowClickNodes, setAllowClickNodes, cyBaseFontSize, PERMITTEDMINLOGPROB, ALLOWIMPOSSIBLEMOVES } from './sharedState.js';
 import { predicateToIndex, getPredicateFromIndex, getSupportingEdgesCoeffs, getSupportedEdgesCoeffs, updateLogLik, computeBelievabilityFromLogLik, altNetworkLogLik, getNarrative, predicateToOption } from './BeliefGraphUtils.js';
-import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage, getCompletionImage } from './uiUtils.js';
+import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage, getCompletionImage, nodeImageDataURLs } from './uiUtils.js';
 import { CHARACTERNAME } from './gamedata.js';
 import { log, getDifficulty } from './main.js';
 import { getAssetUrl } from './utils/assets.js';
@@ -100,6 +100,28 @@ function updateNodeDetails(node) {
         const isTargetOption = (node.data().target==1 && i==0);
         let htmlOption = "";
         let color = predicateToTextColour(getPredicateFromIndex(node.data(), i));
+        
+        // Add node image based on the predicate value for this option
+        const nodeId = node.id().toLowerCase();
+        const optionPredValue = getPredicateFromIndex(node.data(), i);
+        let imageSuffix;
+        if (optionPredValue === 1) {
+            imageSuffix = '_red';
+        } else if (optionPredValue === 0) {
+            imageSuffix = '_blue';
+        } else {
+            imageSuffix = '_noglow';
+        }
+        
+        let optImage = "";
+        if (nodeImageDataURLs[nodeId] && nodeImageDataURLs[nodeId][imageSuffix]) {
+            optImage = `<img src="${nodeImageDataURLs[nodeId][imageSuffix]}" style="width:36px; height:36px; vertical-align:middle; margin-right:6px;" alt="" />`;
+        }
+        if (!isTargetOption)
+            htmlOption += optImage;
+        
+        if (i==whichSelected) document.getElementById("topic-image").innerHTML = `<img src="${nodeImageDataURLs[nodeId][imageSuffix]}" style="width:80px; height:80px; " alt="" />`;
+
         if (isTargetOption)
             htmlOption+=`<div class=targetbox><span class=darkbg><font class=target color=ffff00><b>GAME TARGET<br>&darr; Your aim is to convince ${CHARACTERNAME} of this &darr;</b></font></span><div class=targettextcontainer><font class=target>`;
         htmlOption +=  "<font color="+color+">"+options[i]+"</font>";
@@ -211,6 +233,7 @@ function updateNodeDetails(node) {
         td.appendChild(button);
         row.appendChild(td);
         let td2 = document.createElement("td");
+        
         td2.appendChild(optionSpan);
         row.appendChild(td2);
         table.appendChild(row);

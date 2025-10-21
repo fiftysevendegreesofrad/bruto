@@ -8,7 +8,7 @@ import { load_elements, permittedMinLogProbs, CHARACTERNAME } from './gamedata.j
 import './BeliefGraphUtils.js';
 import { displayNodeDetails, hideNodeDisplay } from './BeliefPanel.js';
 import { setCy, DEVMODE, setCyBaseFontSize, cyBaseFontSize, setPERMITTEDMINLOGPROB, PERMITTEDMINLOGPROB, allowClickNodes } from './sharedState.js';
-import { updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal } from './uiUtils.js';
+import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, nodeImageDataURLs } from './uiUtils.js';
 import { updateLogLik } from './BeliefGraphUtils.js';
 import { getAssetUrl } from './utils/assets.js';
 
@@ -114,12 +114,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Preload node images as data URLs using actual node ids from elements
     const NODE_IMAGE_SUFFIXES = ['_noglow', '_red', '_blue'];
-    let nodeImageDataUrls = {};
     async function preloadNodeImages() {
         let promises = [];
         elements.nodes.forEach(node => {
             const nodeId = node.data.id.toLowerCase();
-            nodeImageDataUrls[nodeId] = {};
+            nodeImageDataURLs[nodeId] = {}; // Initialize nested object for this node
             NODE_IMAGE_SUFFIXES.forEach(suffix => {
                 let img = new Image();
                 img.crossOrigin = "anonymous";
@@ -131,11 +130,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                         canvas.height = img.height || 40;
                         let ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
-                        nodeImageDataUrls[nodeId][suffix] = canvas.toDataURL();
+                        nodeImageDataURLs[nodeId][suffix] = canvas.toDataURL();
                         resolve();
                     };
                     img.onerror = function() {
-                        nodeImageDataUrls[nodeId][suffix] = 'FAILED_PRELOAD';
+                        nodeImageDataURLs[nodeId][suffix] = 'FAILED_PRELOAD';
                         resolve();
                     };
                 });
@@ -177,8 +176,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                         if (val === 1) suffix = '_red';
                         else if (val === 0) suffix = '_blue';
                         const nodeId = ele.id().toLowerCase();
-                        return (nodeImageDataUrls[nodeId] && nodeImageDataUrls[nodeId][suffix])
-                            ? nodeImageDataUrls[nodeId][suffix]
+                        return (nodeImageDataURLs[nodeId] && nodeImageDataURLs[nodeId][suffix])
+                            ? nodeImageDataURLs[nodeId][suffix]
                             : 'FAILED_RETRIEVE';
                     },
                     'background-fit': 'contain',
