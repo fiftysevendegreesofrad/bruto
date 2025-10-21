@@ -169,5 +169,28 @@ async function processImage(filename) {
 
 // Process all images
 Promise.all(files.map(processImage))
-    .then(() => console.log('All images processed'))
+    .then(async () => {
+        console.log('All images processed');
+        
+        // Generate favicon from reptiles_noglow.png
+        const faviconSource = path.join(outputDir, 'reptiles_noglow.png');
+        const faviconOutput = path.join(outputDir, '../favicon.ico');
+        
+        if (fs.existsSync(faviconSource)) {
+            try {
+                // Load, trim whitespace, resize to 32x32 and save
+                await sharp(faviconSource)
+                    .trim()
+                    .resize(32, 32, { kernel: 'lanczos3' })
+                    .png()
+                    .toFile(faviconOutput);
+                    
+                console.log('Favicon created');
+            } catch (error) {
+                console.error('Error creating favicon:', error.message);
+            }
+        } else {
+            console.warn('reptiles_noglow.png not found, skipping favicon generation');
+        }
+    })
     .catch(err => console.error('Error:', err));
