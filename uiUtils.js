@@ -119,3 +119,35 @@ export function getCompletionImage() {
 }
 
 export let nodeImageDataURLs = {};
+
+// Preload node images as data URLs
+const NODE_IMAGE_SUFFIXES = ['_noglow', '_red', '_blue'];
+export async function preloadNodeImages(elements) {
+    let promises = [];
+    elements.nodes.forEach(node => {
+        const nodeId = node.data.id.toLowerCase();
+        nodeImageDataURLs[nodeId] = {}; // Initialize nested object for this node
+        NODE_IMAGE_SUFFIXES.forEach(suffix => {
+            let img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = getAssetUrl(`img/${nodeId}${suffix}.png`);
+            let p = new Promise(resolve => {
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    canvas.width = img.width || 40;
+                    canvas.height = img.height || 40;
+                    let ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    nodeImageDataURLs[nodeId][suffix] = canvas.toDataURL();
+                    resolve();
+                };
+                img.onerror = function() {
+                    nodeImageDataURLs[nodeId][suffix] = 'FAILED_PRELOAD';
+                    resolve();
+                };
+            });
+            promises.push(p);
+        });
+    });
+    await Promise.all(promises);
+}
