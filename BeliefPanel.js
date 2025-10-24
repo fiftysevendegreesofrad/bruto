@@ -167,13 +167,13 @@ function updateNodeDetails(node) {
 
         //create analyze button (may or may not be used)
         let analyzeButton = document.createElement("button");
-        analyzeButton.innerHTML = "Analyse";
+        analyzeButton.innerHTML = "Analyze";
         analyzeButton.addEventListener("click", ()=>examineHypothetical(cy,node,buttonPredValue)); 
 
         //construct the table row
         let row = document.createElement("tr");
         row.classList.add("optiontable");
-        
+        let showAnalyze = triedInfluence && node.data("researched")==1;
         if (i != whichSelected) {
             
             let currentLogLik = updateLogLik(cy);
@@ -183,9 +183,11 @@ function updateNodeDetails(node) {
             let possible = resultingLogLik >= PERMITTEDMINLOGPROB;
 
             if (possible) {
-                //add td colspan=2 with influence button
+                //add working influence button
                 let td = document.createElement("td");
-                td.colSpan = 2;
+                td.style.textAlign = "center";
+                if (!showAnalyze)
+                    td.colSpan = 2;
                 td.appendChild(possibleButton);
                 row.appendChild(td);
             }
@@ -208,6 +210,7 @@ function updateNodeDetails(node) {
                         showModal(div);
                     });
                     let td = document.createElement("td");
+                    td.style.textAlign = "center";
                     td.colSpan = 2;
                     td.appendChild(button);
                     row.appendChild(td);
@@ -216,49 +219,36 @@ function updateNodeDetails(node) {
                 {
                     //add disabled influence button
                     let button = document.createElement("button");
-                    button.innerHTML = "Can't Influence";
+                    button.innerHTML = "<i>Influence</i>";
                     button.disabled = true;
                     let td = document.createElement("td");
-                    if (!triedInfluence)
+                    td.style.textAlign = "center";
+                    if (!showAnalyze)
                         td.colSpan = 2;
                     td.appendChild(button);
                     row.appendChild(td);
-                    
-                    if (triedInfluence)
-                    {
-                        //add another td with more detailed explanation 
-                        let td2 = document.createElement("td");
-                        if (node.data("researched")==0)
-                            td2.innerHTML = `Try researching`;
-                        else
-                            td2.appendChild(analyzeButton);
-                        row.appendChild(td2);
-                }
                 }
             }
         }
         else //current option
         {
-            //add disabled current button cell
-            let button = document.createElement("button");
-            button.innerHTML = "<i>Current</i>";
-            button.disabled = true;
+            //add current label cell
             let td1 = document.createElement("td");
-            if (!triedInfluence)
+            td1.style.textAlign = "center";
+            td1.innerHTML="[CURRENT]";
+            if (!showAnalyze)
                         td1.colSpan = 2;
-            td1.appendChild(button);
             row.appendChild(td1);
-
-            if (triedInfluence)
-            {
-                //add analyze button cell
-                let td2 = document.createElement("td");
-                td2.appendChild(analyzeButton);
-                row.appendChild(td2);
-            }
+        }
+        if (showAnalyze)
+        {
+            let td2 = document.createElement("td");
+            td2.style.textAlign = "center";
+            td2.appendChild(analyzeButton);
+            row.appendChild(td2);
         }
 
-        row.appendChild(tdImage);
+        //row.appendChild(tdImage);
         
         //add cell with the option text
         let td3 = document.createElement("td");
