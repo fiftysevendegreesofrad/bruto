@@ -42,6 +42,7 @@ body {
     max-width: 100%;
     text-align: left;
     align-items: center;
+    min-height: calc(100vh - 50px); /* Subtract header height */
 }
 
 #progress-bar-container.hidden {
@@ -358,7 +359,7 @@ button,
     max-width: 20cm;
     margin: 0 auto;
     transform: none;
-    padding: 15px 5px 0px;
+    padding: 5px 5px 0px;
 }
 
 #graph-bottom {

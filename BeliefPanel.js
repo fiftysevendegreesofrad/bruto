@@ -281,11 +281,12 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     setNodeSizesFromLogProb(cy);
     
     const gradient = "repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #fff0f0 10px, #fff0f0 20px)";
-    let bodydiv = document.getElementById("body-div");
-    bodydiv.style.background = gradient;
-    let restoreBackground = ()=>{bodydiv.style.background = "";};
+    let body = document.getElementById("body-div");
+    body.style.background = gradient;
+    let restoreBackground = ()=>{body.style.background = "";};
     
     let p = document.createElement("p");
+    p.style.top = "0";
     if (bullshit>100)
         p.innerHTML = `<b>Unachievable belief combination (bullshit > 100%) for <i>${nodeText}.</i></b>`;
     else
