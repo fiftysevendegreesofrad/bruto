@@ -21,3 +21,8 @@ export let PERMITTEDMINLOGPROB = 0;
 export function setPERMITTEDMINLOGPROB(value) {
     PERMITTEDMINLOGPROB = value;
 }
+
+export let triedInfluence = false;
+export function setTriedInfluence() {
+    triedInfluence = true;
+}

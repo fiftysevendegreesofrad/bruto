@@ -1,4 +1,4 @@
-import { cy, DEVMODE, allowClickNodes, setAllowClickNodes, cyBaseFontSize, PERMITTEDMINLOGPROB, ALLOWIMPOSSIBLEMOVES } from './sharedState.js';
+import { cy, DEVMODE, allowClickNodes, setAllowClickNodes, cyBaseFontSize, PERMITTEDMINLOGPROB, ALLOWIMPOSSIBLEMOVES, triedInfluence, setTriedInfluence } from './sharedState.js';
 import { predicateToIndex, getPredicateFromIndex, getSupportingEdgesCoeffs, getSupportedEdgesCoeffs, updateLogLik, computeBelievabilityFromLogLik, altNetworkLogLik, getNarrative, predicateToOption } from './BeliefGraphUtils.js';
 import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage, getCompletionImage, nodeImageDataURLs } from './uiUtils.js';
 import { CHARACTERNAME } from './gamedata.js';
@@ -92,10 +92,6 @@ function updateNodeDetails(node) {
     //let prevNodeValues = cy.elements().map(x => x.json()); //for undo not yet implemented
     let table = document.createElement("table");
     for (let i = 0; i < options.length; i++) {
-        let row = document.createElement("tr");
-        row.classList.add("optiontable");
-
-
         let optionSpan = document.createElement("span");
         const isTargetOption = (node.data().target==1 && i==0);
         let htmlOption = "";
@@ -117,8 +113,8 @@ function updateNodeDetails(node) {
         if (nodeImageDataURLs[nodeId] && nodeImageDataURLs[nodeId][imageSuffix]) {
             optImage = `<img src="${nodeImageDataURLs[nodeId][imageSuffix]}" style="width:36px; height:36px; vertical-align:middle; margin-right:6px;" alt="" />`;
         }
-        if (!isTargetOption)
-            htmlOption += optImage;
+        let tdImage = document.createElement("td");
+        tdImage.innerHTML = optImage;
         
         if (i==whichSelected) document.getElementById("topic-image").innerHTML = `<img src="${nodeImageDataURLs[nodeId][imageSuffix]}" style="width:80px; height:80px; " alt="" />`;
 
@@ -130,30 +126,10 @@ function updateNodeDetails(node) {
         `;
         optionSpan.innerHTML = htmlOption;
 
-        let button = document.createElement("button");
-        if (i != whichSelected) {
-            let buttonPredValue = getPredicateFromIndex(node.data(), i);
-            button.innerHTML = "Influence";
-
-            let currentLogLik = updateLogLik(cy);
-            let resultingLogLik = altNetworkLogLik(cy, { [node.id()]: buttonPredValue });
-            let resultingBelievability = computeBelievabilityFromLogLik(resultingLogLik, PERMITTEDMINLOGPROB);
-
-            let possible = resultingLogLik >= PERMITTEDMINLOGPROB;
-
-            if (DEVMODE && possible) {
-                    button.style.backgroundColor = "green";
-                    button.innerHTML = resultingLogLik.toFixed(2);
-                }
-            if (DEVMODE && !possible) {
-                button.style.backgroundColor = "red";
-                button.innerHTML = resultingLogLik.toFixed(2);
-                if (ALLOWIMPOSSIBLEMOVES)
-                    possible = true;
-            }
-            if (possible) {
-
-                button.addEventListener("click", function (evt1) {
+        //create successful influence button (may or may not be used)
+        let possibleButton = document.createElement("button");
+        possibleButton.innerHTML = "Influence";
+        possibleButton.addEventListener("click", function (evt1) {
                     log("INFYES "+node.id()+"="+buttonPredValue+" "+getDifficulty());
                     window.triggerLongGlitch();
                     showBullshitometer();
@@ -186,56 +162,108 @@ function updateNodeDetails(node) {
                         showModal(div, false);
                     }
                 });
+
+        let buttonPredValue = getPredicateFromIndex(node.data(), i);
+
+        //create analyze button (may or may not be used)
+        let analyzeButton = document.createElement("button");
+        analyzeButton.innerHTML = "Analyse";
+        analyzeButton.addEventListener("click", ()=>examineHypothetical(cy,node,buttonPredValue)); 
+
+        //construct the table row
+        let row = document.createElement("tr");
+        row.classList.add("optiontable");
+        
+        if (i != whichSelected) {
+            
+            let currentLogLik = updateLogLik(cy);
+            let resultingLogLik = altNetworkLogLik(cy, { [node.id()]: buttonPredValue });
+            let resultingBelievability = computeBelievabilityFromLogLik(resultingLogLik, PERMITTEDMINLOGPROB);
+
+            let possible = resultingLogLik >= PERMITTEDMINLOGPROB;
+
+            if (possible) {
+                //add td colspan=2 with influence button
+                let td = document.createElement("td");
+                td.colSpan = 2;
+                td.appendChild(possibleButton);
+                row.appendChild(td);
             }
-            else {
-                button.addEventListener("click", function (evt1) {
-                    log("INFNO "+node.id()+"="+buttonPredValue+" "+getDifficulty());
-                    showBullshitometer();
+            else
+            {
+                if (!triedInfluence)
+                {
+                    //add influence button that won't work 
+                    let button = document.createElement("button");
+                    button.innerHTML = "Influence";
+                    button.addEventListener("click", function (evt1) {
+                        log("INFNO "+node.id()+"="+buttonPredValue+" "+getDifficulty());
+                        showBullshitometer();
 
-                    let div = document.createElement("div");
-                    let message = `<h2>You can't convince ${CHARACTERNAME} of this. 
-                                       His bullshitometer would climb above 100%.</h2>
-                                       <ul>`;
-                    //if node is not researched, suggest researching it
-                    if (node.data("researched")==0)
+                        let div = document.createElement("div");
+                        div.innerHTML = `<h2>You can't convince ${CHARACTERNAME} of this. 
+                                        His bullshitometer would climb above 100%.</h2>
+                                        <ul><li>Try researching ${CHARACTERNAME}'s related beliefs first</li>`;
+                        setTriedInfluence();
+                        showModal(div);
+                    });
+                    let td = document.createElement("td");
+                    td.colSpan = 2;
+                    td.appendChild(button);
+                    row.appendChild(td);
+                }
+                else //player has seen how influence can fail already
+                {
+                    //add disabled influence button
+                    let button = document.createElement("button");
+                    button.innerHTML = "Can't Influence";
+                    button.disabled = true;
+                    let td = document.createElement("td");
+                    if (!triedInfluence)
+                        td.colSpan = 2;
+                    td.appendChild(button);
+                    row.appendChild(td);
+                    
+                    if (triedInfluence)
                     {
-                        message += `<li>Try researching ${CHARACTERNAME}'s related beliefs first</li>`;
-                        div.innerHTML = message;
-                    }
-                    else
-                    {
-                        message += `<li>Maybe influencing some other beliefs first will help.</li>`;
-                        message += `<li>Even if the other beliefs all line up right, the belief you're trying to influence could still be too implausible for ${CHARACTERNAME}. 
-                        Can you lower the bullshitometer to grow his trust in you?
-                        </li>`;
-                        div.innerHTML = message;
-                        let button = document.createElement("button");
-                        button.innerHTML = "Analyse failure to influence";
-                        div.appendChild(button);
-                        button.addEventListener("click", ()=>examineHypothetical(cy,node,buttonPredValue)); 
-
-                        let button2 = document.createElement("button");
-                        button2.innerHTML = "Try something else";
-                        div.appendChild(button2);
-                        button2.addEventListener("click", hideModal);
-                    }
-
-                    showModal(div);
-                });
+                        //add another td with more detailed explanation 
+                        let td2 = document.createElement("td");
+                        if (node.data("researched")==0)
+                            td2.innerHTML = `Try researching`;
+                        else
+                            td2.appendChild(analyzeButton);
+                        row.appendChild(td2);
+                }
+                }
             }
         }
-        else {
+        else //current option
+        {
+            //add disabled current button cell
+            let button = document.createElement("button");
             button.innerHTML = "<i>Current</i>";
             button.disabled = true;
+            let td1 = document.createElement("td");
+            if (!triedInfluence)
+                        td1.colSpan = 2;
+            td1.appendChild(button);
+            row.appendChild(td1);
+
+            if (triedInfluence)
+            {
+                //add analyze button cell
+                let td2 = document.createElement("td");
+                td2.appendChild(analyzeButton);
+                row.appendChild(td2);
+            }
         }
 
-        let td = document.createElement("td");
-        td.appendChild(button);
-        row.appendChild(td);
-        let td2 = document.createElement("td");
+        row.appendChild(tdImage);
         
-        td2.appendChild(optionSpan);
-        row.appendChild(td2);
+        //add cell with the option text
+        let td3 = document.createElement("td");
+        td3.appendChild(optionSpan);
+        row.appendChild(td3);
         table.appendChild(row);
     }
     document.getElementById("nodeDetails").appendChild(table);
