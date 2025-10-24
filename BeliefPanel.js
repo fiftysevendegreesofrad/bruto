@@ -186,8 +186,8 @@ function updateNodeDetails(node) {
                 //add working influence button
                 let td = document.createElement("td");
                 td.style.textAlign = "center";
-                if (!showAnalyze)
-                    td.colSpan = 2;
+                //if (!showAnalyze)
+                //    td.colSpan = 2;
                 td.appendChild(possibleButton);
                 row.appendChild(td);
             }
@@ -211,7 +211,7 @@ function updateNodeDetails(node) {
                     });
                     let td = document.createElement("td");
                     td.style.textAlign = "center";
-                    td.colSpan = 2;
+                    //td.colSpan = 2;
                     td.appendChild(button);
                     row.appendChild(td);
                 }
@@ -223,8 +223,8 @@ function updateNodeDetails(node) {
                     button.disabled = true;
                     let td = document.createElement("td");
                     td.style.textAlign = "center";
-                    if (!showAnalyze)
-                        td.colSpan = 2;
+                    //if (!showAnalyze)
+                    //    td.colSpan = 2;
                     td.appendChild(button);
                     row.appendChild(td);
                 }
@@ -236,8 +236,8 @@ function updateNodeDetails(node) {
             let td1 = document.createElement("td");
             td1.style.textAlign = "center";
             td1.innerHTML="[CURRENT]";
-            if (!showAnalyze)
-                        td1.colSpan = 2;
+            //if (!showAnalyze)
+            //    td1.colSpan = 2;
             row.appendChild(td1);
         }
         if (showAnalyze)
