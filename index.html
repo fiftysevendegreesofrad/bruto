@@ -12,8 +12,8 @@
 
 
 	
-  <script type="module" crossorigin src="/bruto/assets/index-DjS6QvFC.js"></script>
-  <link rel="stylesheet" crossorigin href="/bruto/assets/index-DdnIQ0oT.css">
+  <script type="module" crossorigin src="/bruto/assets/index-DRts3wJp.js"></script>
+  <link rel="stylesheet" crossorigin href="/bruto/assets/index-DYYsMQrA.css">
 </head>
 
 <body>
@@ -37,6 +37,7 @@
 			<span id='node-close' class='close'>&times;</span>
 			<div class="image-text-container">
 				<div class="bordered-image" id="clown-image-container"></div>
+			
 				<p class="image-text"><b><u>PsyOps Target Subject</u></b>
 					<br>Name: <span class="CharacterName"></span>
 					<br>Age: 28
@@ -49,11 +50,13 @@
 				</p>
 			</div>
 			<h1 id="topic"></h1>
-			<p id="currentBelief"></p>
+			<table style="border: none; border-collapse: collapse; border-spacing: 0; padding: 0;"><tr><td style="border: none; padding: 0 8px 0 0; vertical-align: middle;"><span id="topic-image"></span></td><td id="currentBelief" style="border: none; padding: 0; vertical-align: middle;"></td></tr></table>
+
 			<h2>Alternative Beliefs:</h2>
 			<p id="nodeDetails"></p>
 
 			<div id="ResearchButton"></div>
+			<br/><br/><br/><br/> <!--to ensure end of text not covered by mobile address bar -->
 		</div>
 		<div id="body-div">
 			<div class="graph-top">
@@ -62,7 +65,7 @@
 					<br><i>Click any belief for details</i>
 				</div>
 			</div>
-			<div id="impossible-info"></div>
+			<div id="hypothetical-info"></div>
 			<div id="cy"></div>
 			<div id="graph-bottom" class="hide-at-start">
 				<ul>
@@ -91,12 +94,12 @@
 				</p>
 				<div class="radio">
 					<label><input type="radio" name="difficulty" value="easy" checked>Easy</label>
-					&nbsp;&nbsp;&nbsp;&nbsp;
+					
 					<label><input type="radio" name="difficulty" value="hard" onclick="verifyRestart()">Hard</label>
 				</div>
 				<div class="radio">
 					<label><input type="radio" name="sound" value="on" onclick="startOrResumeMusic()" checked>Sound on</label>
-					&nbsp;&nbsp;&nbsp;&nbsp;
+					
 					<label><input type="radio" name="sound" value="off" onclick="stopMusic()">Sound off</label>
 				</div>
 				<p>
