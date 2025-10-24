@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'text-margin-y': -2, 
                     'font-family': 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace',
                     'color': '#000000',
+                    'text-events': 'yes', // Make label clickable
                     'width': 40,
                     'height': 40,
                     'background-opacity': 0, // make the circle invisible but keep geometry for arrows
