@@ -200,7 +200,7 @@ h2,
 #cy {
     width: 20cm;
     max-width: 100%;
-    margin: 0 auto;
+    margin: -40px auto 0 auto;  /* overlap with above to negate cytoscape's excessive padding */
     display: block;
     justify-content: center;
     align-items: center;
@@ -350,24 +350,17 @@ button,
 .targettextcontainer {
     padding: 3px;
 }
-.graph-top {
-    position: absolute;
-    left: 50%; 
+.graph-top, #hypothetical-info {
+    position: relative;
+    left: 0;
     z-index: 1;
     width: 100%;
     max-width: 20cm;
-    transform: translateX(-50%);
+    margin: 0 auto;
+    transform: none;
     padding: 15px 5px 0px;
 }
-#hypothetical-info {
-    position: absolute;
-    left: 50%; 
-    z-index: 1;
-    width: 100%;
-    max-width: 20cm;
-    transform: translateX(-50%);
-    padding: 0 5px;
-}
+
 #graph-bottom {
     left: 50%; 
     width: 100%;

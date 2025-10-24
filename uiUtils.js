@@ -94,6 +94,8 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
             animate: "end",
             animationDuration: 2000,
             animationEasing: 'ease-in-out',
+            fit: true,
+            padding: 5,
             eles: visibleNodes
         };
         let layout = cy.layout(layoutOptions);

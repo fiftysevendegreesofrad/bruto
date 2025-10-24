@@ -287,23 +287,20 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     
     let p = document.createElement("p");
     if (bullshit>100)
-        p.innerHTML = `<b>Unachievable belief combination (bullshit > 100%) for<br><i>${nodeText}</i></b>`;
+        p.innerHTML = `<b>Unachievable belief combination (bullshit > 100%) for <i>${nodeText}.</i></b>`;
     else
-        p.innerHTML = `<b>Analysis with <br><i>${nodeText}</i></b>`;
-    hypotheticalInfo.appendChild(p);
+        p.innerHTML = `<b>Analysis with <br><i>${nodeText}.</i></b>`;
+    p.innerHTML += " Nodes shown larger are triggering the bullshitometer more."
+    let notVisible = cy.nodes().filter(node => node.style('display') === 'none');
+    if (notVisible.length > 0) 
+        p.innerHTML += ` <i>Unresearched beliefs may also be triggering the bullshitometer.</i>`;
 
     let button = document.createElement("button");
     button.innerHTML = "Close Analysis";
     button.classList.add("align-right");
-    hypotheticalInfo.appendChild(button);
+    p.appendChild(button);
 
-    //if any beliefs are not researched
-    let unresearched = cy.elements().filter(x => x.data("researched")==0);
-    if (unresearched.length > 0) {
-        let p = document.createElement("p");
-        p.innerHTML = `<i>Warning: there are also some unresearched beliefs which may be triggering the bullshitometer</i>`;
-        hypotheticalInfo.appendChild(p);
-    }
+    hypotheticalInfo.appendChild(p);
 
     function closeHypotheticalDisplay() {
         restoreBackground();
