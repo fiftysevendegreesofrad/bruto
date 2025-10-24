@@ -94,8 +94,6 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
             animate: "end",
             animationDuration: 2000,
             animationEasing: 'ease-in-out',
-            fit: true,
-            padding: 5,
             eles: visibleNodes
         };
         let layout = cy.layout(layoutOptions);
@@ -103,8 +101,8 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
         return layout;
     }
     let layout = updateLayout();
-    let endFontSize = visibleNodes.length > 6 ? cyBaseFontSize*28/15 : cyBaseFontSize;
-    let endIconSize = visibleNodes.length > 9 ? 70 : 40;
+    let endFontSize = visibleNodes.length > 7 ? cyBaseFontSize*28/15 : cyBaseFontSize;
+    let endIconSize = visibleNodes.length > 7 ? 70 : 40;
     layout.promiseOn('layoutstop').then(() => {
         cy.style().selector('node').style('font-size', endFontSize + 'px').style('width', endIconSize + 'px').style('height', endIconSize + 'px').update();
         updateLayout(); // run again to accommodate size changes
