@@ -1,6 +1,6 @@
 import { cy, DEVMODE, allowClickNodes, setAllowClickNodes, cyBaseFontSize, PERMITTEDMINLOGPROB, ALLOWIMPOSSIBLEMOVES, triedInfluence, setTriedInfluence } from './sharedState.js';
 import { predicateToIndex, getPredicateFromIndex, getSupportingEdgesCoeffs, getSupportedEdgesCoeffs, updateLogLik, computeBelievabilityFromLogLik, altNetworkLogLik, getNarrative, predicateToOption } from './BeliefGraphUtils.js';
-import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage, getCompletionImage, nodeImageDataURLs } from './uiUtils.js';
+import { updateClownImage, updateBelievabilityDisplay, updateGraphDisplay, showModal, hideModal, getClownImage, getCompletionImage, nodeImageDataURLs, setNodeSizesFromLogProb, restoreNodeSizes } from './uiUtils.js';
 import { CHARACTERNAME } from './gamedata.js';
 import { log, getDifficulty } from './main.js';
 import { getAssetUrl } from './utils/assets.js';
@@ -260,10 +260,12 @@ function updateNodeDetails(node) {
 }
 
 function examineHypothetical(cy,node,hypotheticalPredValue) {
+    let hypotheticalIsCurrent = (node.data().predicateValue == hypotheticalPredValue);
+
     let normalGraphInfo = document.getElementById("normal-graph-info");
     normalGraphInfo.style.display = "none";
-    let impossibleInfo = document.getElementById("impossible-info");
-    impossibleInfo.innerHTML = "";
+    let hypotheticalInfo = document.getElementById("hypothetical-info");
+    hypotheticalInfo.innerHTML = "";
 
     let nodeName = node.data("displaylabel");
     let option = predicateToOption(node, hypotheticalPredValue);
@@ -275,7 +277,8 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     setAllowClickNodes(false);
     let prevPredValue = node.data("predicateValue");
     node.data("predicateValue", hypotheticalPredValue);
-    updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
+    let bullshit=updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
+    setNodeSizesFromLogProb(cy);
     
     const gradient = "repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #fff0f0 10px, #fff0f0 20px)";
     let bodydiv = document.getElementById("body-div");
@@ -283,29 +286,32 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     let restoreBackground = ()=>{bodydiv.style.background = "";};
     
     let p = document.createElement("p");
-    p.innerHTML = `<b>Unachievable belief combination (bullshit > 100%) for<br><i>${nodeText}</i></b>`;
-       
-    impossibleInfo.appendChild(p);
+    if (bullshit>100)
+        p.innerHTML = `<b>Unachievable belief combination (bullshit > 100%) for<br><i>${nodeText}</i></b>`;
+    else
+        p.innerHTML = `<b>Analysis with <br><i>${nodeText}</i></b>`;
+    hypotheticalInfo.appendChild(p);
 
     let button = document.createElement("button");
-    button.innerHTML = "Try something else";
+    button.innerHTML = "Close Analysis";
     button.classList.add("align-right");
-    impossibleInfo.appendChild(button);
+    hypotheticalInfo.appendChild(button);
 
     //if any beliefs are not researched
     let unresearched = cy.elements().filter(x => x.data("researched")==0);
     if (unresearched.length > 0) {
         let p = document.createElement("p");
-        p.innerHTML = `<i>Warning: there are also  some unresearched beliefs which may be triggering the bullshitometer</i>`;
-        impossibleInfo.appendChild(p);
+        p.innerHTML = `<i>Warning: there are also some unresearched beliefs which may be triggering the bullshitometer</i>`;
+        hypotheticalInfo.appendChild(p);
     }
 
     function closeHypotheticalDisplay() {
         restoreBackground();
         node.data("predicateValue", prevPredValue);
+        restoreNodeSizes(cy);
         updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
         updateGraphDisplay(cy, cyBaseFontSize);
-        impossibleInfo.innerHTML = "";
+        hypotheticalInfo.innerHTML = "";
         setAllowClickNodes(true);
         normalGraphInfo.style.display = "block";
     }

@@ -53,6 +53,7 @@ export function updateBelievabilityDisplay(cy, permittedMinLogProb) {
     if (DEVMODE)
         document.getElementById("moving-text").textContent += " " + logLik.toFixed(2);
     cy.resize();
+    return bullshit;
 }
 
 export function hideModal() {
@@ -150,4 +151,29 @@ export async function preloadNodeImages(elements) {
         });
     });
     await Promise.all(promises);
+}
+
+export function setNodeSizesFromLogProb(cy) {
+    const minSize=20;
+    const maxSize=60;
+    const minNodeLogProb=-3;
+    const maxNodeLogProb=0;
+    cy.nodes().forEach(node => {
+        //store current node width in node.oldSize
+        node.data('oldSize', node.style('width'));
+        let logProb = node.data().logprob;
+        //compute new size based on logProb
+        let normalizedSize = (logProb - minNodeLogProb) / (maxNodeLogProb - minNodeLogProb) * (minSize - maxSize) + maxSize;
+        //clamp to range
+        let newSize = Math.min(maxSize, Math.max(minSize, normalizedSize));
+        node.style('width', newSize);
+        node.style('height', newSize);
+    });
+}
+
+export function restoreNodeSizes(cy) {
+    cy.nodes().forEach(node => {
+        node.style('width', node.data('oldSize'));
+        node.style('height', node.data('oldSize'));
+    });
 }
