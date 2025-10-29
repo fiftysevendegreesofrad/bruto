@@ -302,6 +302,7 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
     p.appendChild(button);
 
     hypotheticalInfo.appendChild(p);
+    window.cy.resize();
 
     function closeHypotheticalDisplay() {
         restoreBackground();
@@ -312,6 +313,7 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
         hypotheticalInfo.innerHTML = "";
         setAllowClickNodes(true);
         normalGraphInfo.style.display = "block";
+        window.cy.resize();
     }
 
     setTimeout(()=>

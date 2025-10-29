@@ -94,11 +94,13 @@ function stringListToTableRow(list) {
 //make cy square
 window.addEventListener('resize', function() {
     var cy = document.getElementById('cy');
-    //console.log(cy.offsetWidth);
-    let maxCyHeight = window.innerHeight - 100;
+    let maxCyHeight = window.innerHeight - 300; // Account for header + other elements
     let cySize = Math.min(cy.offsetWidth, maxCyHeight);
     cy.style.height = cySize + 'px';
     cy.style.width = cySize + 'px';
+    if (window.cy) {
+        window.cy.resize(); // Tell Cytoscape to recalculate its dimensions
+    }
 });
 
 document.addEventListener('DOMContentLoaded', async function () {

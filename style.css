@@ -201,12 +201,12 @@ h2,
 #cy {
     width: 20cm;
     max-width: 100%;
-    margin: -40px auto 0 auto;  /* overlap with above to negate cytoscape's excessive padding */
+    margin: 0 auto;
+    /* margin: -40px auto 0 auto;  /* try overlap with above to negate cytoscape's excessive padding but it causes issues */
     display: block;
     justify-content: center;
     align-items: center;
     padding: 0 10px;
-    box-sizing: border-box;
     position: relative;
 }
 
@@ -363,13 +363,12 @@ button,
 }
 
 #graph-bottom {
-    left: 50%; 
     width: 100%;
     max-width: 20cm;
     padding: 0 10px;
-    transform: translateX(-50%);
-    position: relative;
     height: 100%;
+    margin: 0 auto;
+    position: relative;
 }
 .larger {
     font-size: 1.25em;
