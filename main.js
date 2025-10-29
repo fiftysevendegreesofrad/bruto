@@ -98,7 +98,7 @@ window.addEventListener('resize', function() {
     let cySize = Math.min(cy.offsetWidth, maxCyHeight);
     cy.style.height = cySize + 'px';
     cy.style.width = cySize + 'px';
-    if (window.cy) {
+    if (window.cy.resize) {
         window.cy.resize(); // Tell Cytoscape to recalculate its dimensions
     }
 });
@@ -176,8 +176,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'line-color': 'mapData(colorType, -1, 1, #d52b00, #009E73)',
                     'opacity': 0.5,
                     'target-arrow-shape': 'triangle',
+                    'arrow-scale': 0.7,
                     'target-arrow-color': 'mapData(colorType, -1, 1, #d52b00, #009E73)',
-                    'curve-style': 'unbundled-bezier',
+                    'curve-style': 'straight',
                     'control-point-distances': '10px',
                     'control-point-weights': '0.5',
                     'label': DEVMODE?'data(weight)':''

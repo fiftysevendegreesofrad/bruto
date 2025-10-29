@@ -87,10 +87,12 @@ export function showModal(content, canDismiss=true) {
 
 export function updateGraphDisplay(cy, cyBaseFontSize) {
     let visibleNodes = cy.nodes(":visible");
+    if (visibleNodes.length > 2)
+        cy.style().selector('edge').style('curve-style', 'unbundled-bezier').update();
     function updateLayout() {
         let layoutOptions = {
             name: 'avsdf',
-            nodeSeparation: 120,
+            nodeSeparation: 90,
             animate: "end",
             animationDuration: 2000,
             animationEasing: 'ease-in-out',
@@ -101,8 +103,8 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
         return layout;
     }
     let layout = updateLayout();
-    let endFontSize = visibleNodes.length > 7 ? cyBaseFontSize*28/15 : cyBaseFontSize;
-    let endIconSize = visibleNodes.length > 7 ? 70 : 40;
+    let endFontSize = visibleNodes.length > 7 ? cyBaseFontSize*1.4 : cyBaseFontSize;
+    let endIconSize = visibleNodes.length > 7 ? 50 : 40;
     layout.promiseOn('layoutstop').then(() => {
         cy.style().selector('node').style('font-size', endFontSize + 'px').style('width', endIconSize + 'px').style('height', endIconSize + 'px').update();
         updateLayout(); // run again to accommodate size changes
