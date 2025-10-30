@@ -309,7 +309,7 @@ function examineHypothetical(cy,node,hypotheticalPredValue) {
         node.data("predicateValue", prevPredValue);
         restoreNodeSizes(cy);
         updateBelievabilityDisplay(cy, PERMITTEDMINLOGPROB);
-        updateGraphDisplay(cy, cyBaseFontSize);
+        updateGraphDisplay(cy, cyBaseFontSize, true);
         hypotheticalInfo.innerHTML = "";
         setAllowClickNodes(true);
         normalGraphInfo.style.display = "block";

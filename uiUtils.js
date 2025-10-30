@@ -85,7 +85,7 @@ export function showModal(content, canDismiss=true) {
     modalMessage.appendChild(content);
 }
 
-export function updateGraphDisplay(cy, cyBaseFontSize) {
+export function updateGraphDisplay(cy, cyBaseFontSize, guaranteeNoNewNodes=false) {
     let visibleNodes = cy.nodes(":visible");
     if (visibleNodes.length > 2)
         cy.style().selector('edge').style('curve-style', 'unbundled-bezier').update();
@@ -103,13 +103,14 @@ export function updateGraphDisplay(cy, cyBaseFontSize) {
         return layout;
     }
     let layout = updateLayout();
-    let endFontSize = visibleNodes.length > 7 ? cyBaseFontSize*1.4 : cyBaseFontSize;
-    let endIconSize = visibleNodes.length > 7 ? 50 : 40;
-    layout.promiseOn('layoutstop').then(() => {
-        cy.style().selector('node').style('font-size', endFontSize + 'px').style('width', endIconSize + 'px').style('height', endIconSize + 'px').update();
-        updateLayout(); // run again to accommodate size changes
-    });    
-    
+    if (!guaranteeNoNewNodes) {
+        let endFontSize = visibleNodes.length > 7 ? cyBaseFontSize*1.4 : cyBaseFontSize;
+        let endIconSize = visibleNodes.length > 7 ? 50 : 40;
+        layout.promiseOn('layoutstop').then(() => {
+            cy.style().selector('node').style('font-size', endFontSize + 'px').style('width', endIconSize + 'px').style('height', endIconSize + 'px').update();
+            updateLayout(); // run again to accommodate size changes
+        });    
+    }
 }
 
 // Provide a function to get the preloaded completion image (as a clone)
