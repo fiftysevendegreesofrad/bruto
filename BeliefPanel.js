@@ -219,7 +219,7 @@ function updateNodeDetails(node) {
                 {
                     //add disabled influence button
                     let button = document.createElement("button");
-                    button.innerHTML = "<i>Influence</i>";
+                    button.innerHTML = "<i>Can't<br/>Influence</i>";
                     button.disabled = true;
                     let td = document.createElement("td");
                     td.style.textAlign = "center";
@@ -235,7 +235,10 @@ function updateNodeDetails(node) {
             //add current label cell
             let td1 = document.createElement("td");
             td1.style.textAlign = "center";
-            td1.innerHTML="[CURRENT]";
+            let button = document.createElement("button");
+            button.innerHTML = "<i>Current</i>";
+            button.disabled = true;
+            td1.appendChild(button);
             //if (!showAnalyze)
             //    td1.colSpan = 2;
             row.appendChild(td1);
