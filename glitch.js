@@ -7,7 +7,8 @@ import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
 // Use full-viewport canvas and layer it above, but attach to #glitch-overlay for CSS blending
 const overlay = document.getElementById('glitch-overlay');
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+const dpr = window.devicePixelRatio || 1;
+renderer.setPixelRatio(Math.min(2, dpr));
 // ensure canvas clears to transparent
 renderer.setClearColor(0x000000, 0);
 
@@ -487,15 +488,16 @@ function applyHeaderScissor() {
     renderer.setScissorTest(false);
     return;
   }
-  const dpr = renderer.getPixelRatio ? renderer.getPixelRatio() : (window.devicePixelRatio || 1);
+
+  // Use CSS pixels for viewport/scissor; three.js applies pixelRatio internally.
   const canvasRect = renderer.domElement.getBoundingClientRect();
   const headerRect = hdr.getBoundingClientRect();
 
-  // x spans header's left/width; y spans full canvas height
-  const x = Math.floor((headerRect.left - canvasRect.left) * dpr);
+  // x spans header's left/width; y spans full canvas height (CSS pixels)
+  const x = Math.max(0, Math.floor(headerRect.left - canvasRect.left));
   const y = 0;
-  const w = Math.max(1, Math.floor(headerRect.width * dpr));
-  const h = Math.max(1, Math.floor(canvasRect.height * dpr));
+  const w = Math.max(1, Math.floor(headerRect.width));
+  const h = Math.max(1, Math.floor(canvasRect.height));
 
   renderer.setScissorTest(true);
   renderer.setViewport(x, y, w, h);
