@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Run ExportTables",
+      "program": "${workspaceFolder}/ExportTables.js",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
